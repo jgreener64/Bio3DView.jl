@@ -1,14 +1,13 @@
 module Bio3DView
 
-# Add precompile
-
 export
     defaultstyle,
     setstyle!,
     addmodel!,
     view3D,
     viewfile,
-    viewpdb
+    viewpdb,
+    png
 
 using PyCall
 using BioStructures
@@ -17,7 +16,6 @@ using BioStructures
 
 const defaultstyle = Dict("cartoon"=> Dict("color"=> "spectrum"))
 
-# Can this actually be a string?
 function setstyle!(v::PyObject, style::Dict)
     v[:setStyle](style)
     return v
@@ -78,6 +76,12 @@ function viewpdb(p::AbstractString; style::Dict=defaultstyle)
     v = py3Dmol.view(query="pdb:$(lowercase(p))")
     setstyle!(v, style)
     return v
+end
+
+function png(v::PyObject)
+    if isdefined(Main, :IJulia) && Main.IJulia.inited
+        v[:png]()
+    end
 end
 
 end

@@ -28,3 +28,5 @@ viewfile(testpath("1AKE.pdb"), "pdb")
 
 viewpdb("3PXF")
 @test_throws ArgumentError viewpdb("123")
+
+png(v)
