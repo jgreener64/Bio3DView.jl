@@ -10,7 +10,7 @@ It uses [PyCall.jl](https://github.com/JuliaPy/PyCall.jl) to call [py3Dmol](http
 3Dmol.js: molecular visualization with WebGL,
 Bioinformatics (2015) 31(8): 1322-1324 - [link](http://doi.org/10.1093/bioinformatics/btu829)
 
-This project is work in progress.
+This project works but is in development.
 Contributions and bug reports are welcome.
 
 ## Installation
