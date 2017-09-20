@@ -33,4 +33,4 @@ pip install py3Dmol
 
 ## Usage
 
-See `examples/tutorial.ipynb` for a tutorial notebook.
+See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
