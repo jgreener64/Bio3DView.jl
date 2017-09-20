@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/jgreener64/Bio3DView.jl.svg?branch=master)](https://travis-ci.org/jgreener64/Bio3DView.jl)
 [![codecov.io](http://codecov.io/github/jgreener64/Bio3DView.jl/coverage.svg?branch=master)](http://codecov.io/github/jgreener64/Bio3DView.jl?branch=master)
 
-Bio3DView provides an interface to explore macromolecular 3D structures in [Jupyter](http://jupyter.org) notebooks.
+Bio3DView provides an interface to explore macromolecular 3D structures using [Julia](https://julialang.org) in [Jupyter](http://jupyter.org) notebooks.
 It uses [PyCall](https://github.com/JuliaPy/PyCall.jl) to call [py3Dmol](https://pypi.python.org/pypi/py3Dmol), a Python package that uses [3Dmol.js](http://3dmol.csb.pitt.edu) [1] to render structures in the notebook.
 
 [1] Nicholas Rego and David Koes,
