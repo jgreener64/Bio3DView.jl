@@ -24,7 +24,7 @@ matrix:
 #    - gfortran
 before_script: # homebrew for mac
 #  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
-  - pip install py3Dmol
+  - pip install --user py3Dmol
 
 ## uncomment the following lines to override the default test script
 #script:
