@@ -20,7 +20,7 @@ To use Julia in the Jupyter notebook, [IJulia](https://github.com/JuliaLang/IJul
 Install Bio3DView from the Julia REPL:
 
 ```julia
-julia> Pkg.add("Bio3DView")
+julia> Pkg.clone("https://github.com/jgreener64/Bio3DView.jl.git")
 ```
 
 py3Dmol also needs to be available on the Python path which PyCall sees.
