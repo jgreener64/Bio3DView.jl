@@ -1,36 +1,35 @@
 # Bio3DView.jl
 
 [![Build Status](https://travis-ci.org/jgreener64/Bio3DView.jl.svg?branch=master)](https://travis-ci.org/jgreener64/Bio3DView.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/l2gep9mdvcnhsc4p/branch/master?svg=true)](https://ci.appveyor.com/project/jgreener64/bio3dview-jl/branch/master)
 [![codecov.io](http://codecov.io/github/jgreener64/Bio3DView.jl/coverage.svg?branch=master)](http://codecov.io/github/jgreener64/Bio3DView.jl?branch=master)
 
-Bio3DView.jl provides an interface to explore macromolecular 3D structures using [Julia](https://julialang.org) in [Jupyter](http://jupyter.org) notebooks.
-It uses [PyCall.jl](https://github.com/JuliaPy/PyCall.jl) to call [py3Dmol](https://pypi.python.org/pypi/py3Dmol), a Python package that uses [3Dmol.js](http://3dmol.csb.pitt.edu) [1] to render structures in the notebook.
+Bio3DView.jl provides a viewer for macromolecular 3D structures in [Julia](https://julialang.org).
+It is a wrapper round the excellent [3Dmol.js](http://3dmol.csb.pitt.edu) package [1].
+When used from the REPL or a file, the viewer shows in a popup using [Blink.jl](https://github.com/JunoLab/Blink.jl).
+When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Jupyter](http://jupyter.org) notebook, the viewer shows in the output cell.
 
 [1] Nicholas Rego and David Koes,
 3Dmol.js: molecular visualization with WebGL,
 Bioinformatics (2015) 31(8): 1322-1324 - [link](http://doi.org/10.1093/bioinformatics/btu829)
 
-This project works but is in development.
+This project is in development.
+Current status: partly working.
 Contributions and bug reports are welcome.
 
 ## Installation
 
 Julia v0.6 is required.
-To use Julia in the Jupyter notebook, [IJulia](https://github.com/JuliaLang/IJulia.jl) also needs to be installed.
 Install Bio3DView from the Julia REPL:
 
 ```julia
 julia> Pkg.clone("https://github.com/jgreener64/Bio3DView.jl.git")
 ```
 
-py3Dmol also needs to be available on the Python path which PyCall sees.
-By default this will be the python available on the path for Linux systems and a Python installation local to Julia for Windows/Mac - see the [discussion](https://github.com/JuliaPy/PyCall.jl#installation) at PyCall.
-For example, to install py3Dmol at the python available on the path run:
-
-```bash
-pip install py3Dmol
-```
+You may need to run `using Blink; Blink.AtomShell.install()` if you have not set up Blink.jl before.
+If you want to use Bio3DView.jl in a notebook (optional), [IJulia](https://github.com/JuliaLang/IJulia.jl) also needs to be installed.
 
 ## Usage
 
 See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
+This is out of date and will be updated.

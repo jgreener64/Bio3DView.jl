@@ -2,85 +2,96 @@ module Bio3DView
 
 export
     defaultstyle,
-    setstyle!,
-    addmodel!,
-    view3D,
     viewfile,
-    viewpdb,
-    png
+    viewstring,
+    viewstruc,
+    viewpdb
 
-using PyCall
+using Blink
 using BioStructures
 
-@pyimport py3Dmol
+isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
+libpath = joinpath(@__DIR__, "..", "js", "3dmol-min.js")
+js3dmol = readstring(libpath)
+
+"`Dict` of default styles for molecular visualisation."
 const defaultstyle = Dict("cartoon"=> Dict("color"=> "spectrum"))
 
-function setstyle!(v::PyObject, style::Dict)
-    v[:setStyle](style)
-    return v
-end
-
-function addmodel!(v::PyObject,
-                s::AbstractString,
-                format::AbstractString;
-                style::Dict=defaultstyle)
-    v[:addModel](s, format)
-    v[:zoomTo]()
-    setstyle!(v, style)
-    return v
-end
-
-function addmodel!(v::PyObject,
-                e::StructuralElementOrList,
-                atom_selectors::Function...;
-                kwargs...)
-    io = IOBuffer()
-    writepdb(io, e, atom_selectors...)
-    s = String(io)
-    addmodel!(v, s, "pdb"; kwargs...)
-end
-
-view3D() = py3Dmol.view()
-
-function view3D(s::AbstractString,
-                format::AbstractString;
-                style::Dict=defaultstyle)
-    v = view3D()
-    addmodel!(v, s, format; style=style)
-    return v
-end
-
-function view3D(e::StructuralElementOrList,
-                atom_selectors::Function...;
-                kwargs...)
-    io = IOBuffer()
-    writepdb(io, e, atom_selectors...)
-    s = String(io)
-    return view3D(s, "pdb"; kwargs...)
-end
-
+"""
+View a molecular structure from a file or URL.
+Displays in a popup window, or in the output cell for an IJulia notebook.
+Arguments are the filepath/URL and the format ("pdb", "sdf", "xyz", "mol2", or
+"cube").
+The optional keyword argument `style` is a `Dict` of style options.
+"""
 function viewfile(f::AbstractString,
                 format::AbstractString;
-                kwargs...)
-    in_file = open(f)
-    s = readstring(in_file)
-    close(in_file)
-    return view3D(s, format; kwargs...)
+                style::Dict=defaultstyle)
+    return view("data-type='$format' data-href='$f'"; style=style)
 end
 
+"""
+View a molecular structure contained in a string.
+Displays in a popup window, or in the output cell for an IJulia notebook.
+Arguments are the molecule string and the format ("pdb", "sdf", "xyz", "mol2",
+or "cube").
+The optional keyword argument `style` is a `Dict` of style options.
+"""
+function viewstring(s::AbstractString,
+                format::AbstractString;
+                style::Dict=defaultstyle)
+    return view("data-type='$format'", s; style=style)
+end
+
+"""
+View a structural element from BioStructures.jl.
+Displays in a popup window, or in the output cell for an IJulia notebook.
+Arguments are a `StructuralElementOrList` and zero or more functions to act as
+atom selectors - see BioStructures.jl documentation for more.
+The optional keyword argument `style` is a `Dict` of style options.
+"""
+function viewstruc(e::StructuralElementOrList,
+                atom_selectors::Function...;
+                style::Dict=defaultstyle)
+    io = IOBuffer()
+    writepdb(io, e, atom_selectors...)
+    return view("data-type='pdb'", String(io); style=style)
+end
+
+"""
+View a structure from the Protein Data Bank (PDB).
+Displays in a popup window, or in the output cell for an IJulia notebook.
+Argument is the four letter PDB ID, e.g. "1AKE".
+The optional keyword argument `style` is a `Dict` of style options.
+"""
 function viewpdb(p::AbstractString; style::Dict=defaultstyle)
     if !ismatch(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
-    v = py3Dmol.view(query="pdb:$(lowercase(p))")
-    setstyle!(v, style)
-    return v
+    return view("data-pdb='$p'"; style=style)
 end
 
-function png(v::PyObject)
-    if isdefined(Main, :IJulia) && Main.IJulia.inited
-        v[:png]()
+function view(tagstr::AbstractString,
+                datastr::AbstractString="";
+                style::Dict=defaultstyle)
+    if length(datastr) > 0
+        datadiv = "<div id='3dmol_data' hidden>$datastr</div>"
+        tagstr *= " data-element='3dmol_data'"
+    else
+        datadiv = ""
+    end
+    divstr = "<div style='height: 540px; width: 540px;' " *
+        "class='viewer_3Dmoljs' $tagstr " *
+        "data-backgroundcolor='0xffffff'></div>"
+    if isijulia()
+        return HTML("<script type='text/javascript'>$js3dmol</script>$datadiv$divstr")
+    else
+        w = Window()
+        title(w, "Bio3DView")
+        size(w, 580, 580)
+        loadhtml(w, "<script src='$libpath'></script>$datadiv$divstr")
+        return w
     end
 end
 

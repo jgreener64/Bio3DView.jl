@@ -2,7 +2,7 @@
 language: julia
 os:
   - linux
-#  - osx
+  - osx
 julia:
   - 0.6
   - nightly
@@ -22,9 +22,8 @@ matrix:
 #  apt: # apt-get for linux
 #    packages:
 #    - gfortran
-before_script: # homebrew for mac
+#before_script: # homebrew for mac
 #  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
-  - pip install --user py3Dmol
 
 ## uncomment the following lines to override the default test script
 #script:
