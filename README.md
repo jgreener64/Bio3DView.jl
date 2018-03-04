@@ -14,7 +14,7 @@ When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Ju
 Bioinformatics (2015) 31(8): 1322-1324 - [link](http://doi.org/10.1093/bioinformatics/btu829)
 
 This project is in development.
-Current status: partly working.
+Current status: main functions working, at least on Windows. Some bugs.
 Contributions and bug reports are welcome.
 
 ## Installation

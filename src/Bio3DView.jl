@@ -12,11 +12,14 @@ using BioStructures
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
-libpath = joinpath(@__DIR__, "..", "js", "3dmol-min.js")
+libpath = normpath(@__DIR__, "..", "js", "3dmol-min.js")
 js3dmol = readstring(libpath)
 
 "`Dict` of default styles for molecular visualisation."
 const defaultstyle = Dict("cartoon"=> Dict("color"=> "spectrum"))
+
+# Counter for data elements so they can be named individually
+elementcount = 0
 
 """
 View a molecular structure from a file or URL.
@@ -28,7 +31,11 @@ The optional keyword argument `style` is a `Dict` of style options.
 function viewfile(f::AbstractString,
                 format::AbstractString;
                 style::Dict=defaultstyle)
-    return view("data-type='$format' data-href='$f'"; style=style)
+    if isijulia()
+        return view("data-type='$format'", readstring(f); style=style)
+    else
+        return view("data-type='$format' data-href='$f'"; style=style)
+    end
 end
 
 """
@@ -72,18 +79,23 @@ function viewpdb(p::AbstractString; style::Dict=defaultstyle)
     return view("data-pdb='$p'"; style=style)
 end
 
+# Generate HTML to view a molecule
 function view(tagstr::AbstractString,
                 datastr::AbstractString="";
                 style::Dict=defaultstyle)
     if length(datastr) > 0
-        datadiv = "<div id='3dmol_data' hidden>$datastr</div>"
-        tagstr *= " data-element='3dmol_data'"
+        global elementcount
+        elementcount += 1
+        dataelement = "3dmol_data_$elementcount"
+        datadiv = "<textarea style='display:none;' id='$dataelement'>$datastr</textarea>"
+        tagstr *= " data-element='$dataelement'"
     else
         datadiv = ""
     end
     divstr = "<div style='height: 540px; width: 540px;' " *
         "class='viewer_3Dmoljs' $tagstr " *
-        "data-backgroundcolor='0xffffff'></div>"
+        "data-backgroundcolor='0xffffff' " *
+        "data-style='$(stylestring(style))'></div>"
     if isijulia()
         return HTML("<script type='text/javascript'>$js3dmol</script>$datadiv$divstr")
     else
@@ -93,6 +105,11 @@ function view(tagstr::AbstractString,
         loadhtml(w, "<script src='$libpath'></script>$datadiv$divstr")
         return w
     end
+end
+
+# Convert dictionary to a style string
+function stylestring(style::Dict)
+    return ""
 end
 
 end
