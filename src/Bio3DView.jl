@@ -12,7 +12,7 @@ using BioStructures
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
-libpath = normpath(@__DIR__, "..", "js", "3dmol-min.js")
+libpath = normpath(@__DIR__, "..", "js", "3Dmol-min.js")
 js3dmol = readstring(libpath)
 
 "`Dict` of default styles for molecular visualisation."
