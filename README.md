@@ -14,7 +14,8 @@ When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Ju
 Bioinformatics (2015) 31(8): 1322-1324 - [link](http://doi.org/10.1093/bioinformatics/btu829)
 
 This project is in development.
-Current status: main functions working, at least on Windows. Some bugs.
+Current status: main functions working, at least on Windows. Some bugs, including the REPL popup on some systems.
+Development and stabilisation may have to wait until Julia v1.0 is out.
 Contributions and bug reports are welcome.
 
 ## Installation
@@ -32,4 +33,4 @@ If you want to use Bio3DView.jl in a notebook (optional), [IJulia](https://githu
 ## Usage
 
 See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
-This is out of date and will be updated.
+This is out of date (PyCall.jl is not longer used) and will be updated.
