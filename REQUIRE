@@ -1,3 +1,3 @@
-julia 0.6
-Blink 0.7
-BioStructures
+julia 0.7
+Blink 0.8.1
+BioStructures 0.3.0

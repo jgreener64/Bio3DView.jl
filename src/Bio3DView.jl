@@ -14,7 +14,7 @@ using BioStructures
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
 libpath = normpath(@__DIR__, "..", "js", "3Dmol-min.js")
-js3dmol = readstring(libpath)
+js3dmol = read(libpath, String)
 
 """
 A style for a molecular visualisation.
@@ -45,7 +45,7 @@ function viewfile(f::AbstractString,
                 format::AbstractString;
                 style::Style=defaultstyle)
     if isijulia()
-        return view("data-type='$format'", readstring(f); style=style)
+        return view("data-type='$format'", read(f, String); style=style)
     else
         return view("data-type='$format' data-href='$f'"; style=style)
     end
@@ -86,7 +86,7 @@ Argument is the four letter PDB ID, e.g. "1AKE".
 The optional keyword argument `style` is a `Style`.
 """
 function viewpdb(p::AbstractString; style::Style=defaultstyle)
-    if !ismatch(r"^[a-zA-Z0-9]{4}$", p)
+    if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
     return view("data-pdb='$p'"; style=style)
