@@ -13,8 +13,11 @@ using BioStructures
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
-libpath = normpath(@__DIR__, "..", "js", "3Dmol-min.js")
-js3dmol = read(libpath, String)
+libpath = normpath(@__DIR__, "..", "js")
+path_3dmol = joinpath(libpath, "3Dmol-nojquery-min.js")
+path_jquery = joinpath(libpath, "jquery-3.3.1.min.js")
+js_3dmol = read(path_3dmol, String)
+js_jquery = read(path_jquery, String)
 
 """
 A style for a molecular visualisation.
@@ -110,12 +113,15 @@ function view(tagstr::AbstractString,
         "data-backgroundcolor='0xffffff' " *
         "data-style='$(stylestring(style))'></div>"
     if isijulia()
-        return HTML("<script type='text/javascript'>$js3dmol</script>$datadiv$divstr")
+        return HTML("<script type='text/javascript'>$js_jquery</script>" *
+            "<script type='text/javascript'>$js_3dmol</script>$datadiv$divstr")
     else
         w = Window()
         title(w, "Bio3DView")
         size(w, 580, 580)
-        loadhtml(w, "<script src='$libpath'></script>$datadiv$divstr")
+        loadhtml(w, "<script>window.\$ = window.jQuery = require('$path_jquery');</script>" *
+            "<script src='$path_jquery'></script><script src='$path_3dmol'>" *
+            "</script>$datadiv$divstr")
         return w
     end
 end
