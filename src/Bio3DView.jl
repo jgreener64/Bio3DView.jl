@@ -119,8 +119,12 @@ function view(tagstr::AbstractString,
         w = Window()
         title(w, "Bio3DView")
         size(w, 580, 580)
-        loadhtml(w, "<script>window.\$ = window.jQuery = require" *
-            "('$(replace(path_jquery, "\\" => "\\\\"))');</script>" *
+        if Sys.iswindows()
+            req_path = replace(path_jquery, "\\" => "\\\\")
+        else
+            req_path = path_jquery
+        end
+        loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>" *
             "<script src='$path_jquery'></script><script src='$path_3dmol'>" *
             "</script>$datadiv$divstr")
         return w
