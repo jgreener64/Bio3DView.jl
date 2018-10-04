@@ -4,7 +4,8 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
+  - 0.7
+  - 1.0
   - nightly
 notifications:
   email: false
@@ -30,4 +31,4 @@ matrix:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("Bio3DView"); Pkg.test("Bio3DView"; coverage=true)'
 after_success:
   # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("Bio3DView")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
