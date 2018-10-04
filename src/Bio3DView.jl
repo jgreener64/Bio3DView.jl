@@ -137,6 +137,7 @@ function view(tag_str::AbstractString,
         else
             req_path = path_jquery
         end
+        # The first part gets jQuery to work with Electron
         loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>" *
             "<script src='$path_jquery'></script><script src='$path_3dmol'>" *
             "</script>$data_div$div_str")
