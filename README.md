@@ -30,4 +30,4 @@ If you want to use Bio3DView.jl with Jupyter (optional), [IJulia](https://github
 
 ## Usage
 
-See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
+See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb) (the first two examples don't render correctly due to the nbviewer security settings).
