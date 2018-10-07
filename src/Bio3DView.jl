@@ -53,6 +53,9 @@ The optional keyword argument `style` is a `Style`.
 function viewfile(f::AbstractString,
                 format::AbstractString;
                 style::Style=defaultstyle)
+    if !(startswith(f, "http") || isfile(f))
+        throw(ArgumentError("Cannot find file or URL \"$f\""))
+    end
     if isijulia()
         return view("data-type='$format'", read(f, String); style=style)
     else
