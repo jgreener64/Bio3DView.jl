@@ -56,11 +56,7 @@ function viewfile(f::AbstractString,
     if !(startswith(f, "http") || isfile(f))
         throw(ArgumentError("Cannot find file or URL \"$f\""))
     end
-    if isijulia()
-        return view("data-type='$format'", read(f, String); style=style)
-    else
-        return view("data-type='$format' data-href='$f'"; style=style)
-    end
+    return view("data-type='$format'", read(f, String); style=style)
 end
 
 """
