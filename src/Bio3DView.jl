@@ -2,6 +2,7 @@ module Bio3DView
 
 export
     Style,
+    Surface,
     defaultstyle,
     viewfile,
     viewstring,
@@ -28,11 +29,17 @@ Examples are `Style("cartoon")` and
 `Style("cartoon", Dict("color"=> "spectrum", "ribbon"=> true, "thickness"=> 1.0))`.
 """
 struct Style
-    style_type::String
+    name::String
     options::Dict{String, Any}
 end
 
 Style(s::AbstractString) = Style(s, Dict())
+
+struct Surface
+    options::Dict{String, Any}
+end
+
+Surface() = Surface(Dict())
 
 "Default `Style` for molecular visualisation."
 const defaultstyle = Style("cartoon", Dict("color"=> "spectrum"))
@@ -52,11 +59,11 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString;
-                style::Style=defaultstyle)
+                kwargs...)
     if !(startswith(f, "http") || isfile(f))
         throw(ArgumentError("Cannot find file or URL \"$f\""))
     end
-    return view("data-type='$format'", read(f, String); style=style)
+    return view("data-type='$format'", read(f, String); kwargs...)
 end
 
 """
@@ -70,8 +77,8 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
-                style::Style=defaultstyle)
-    return view("data-type='$format'", s; style=style)
+                kwargs...)
+    return view("data-type='$format'", s; kwargs...)
 end
 
 """
@@ -86,10 +93,10 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;
-                style::Style=defaultstyle)
+                kwargs...)
     io = IOBuffer()
     writepdb(io, e, atom_selectors...)
-    return view("data-type='pdb'", String(take!(io)); style=style)
+    return view("data-type='pdb'", String(take!(io)); kwargs...)
 end
 
 """
@@ -100,17 +107,18 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 The optional keyword argument `style` is a `Style`.
 """
-function viewpdb(p::AbstractString; style::Style=defaultstyle)
+function viewpdb(p::AbstractString; kwargs...)
     if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
-    return view("data-pdb='$p'"; style=style)
+    return view("data-pdb='$p'"; kwargs...)
 end
 
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
-                style::Style=defaultstyle)
+                style::Style=defaultstyle,
+                surface::Union{Surface, Nothing}=nothing)
     if length(data_str) > 0
         global element_count
         element_count += 1
@@ -120,10 +128,16 @@ function view(tag_str::AbstractString,
     else
         data_div = ""
     end
+    if surface != nothing
+        surface_tag = " data-surface='$(tagstring(surface))'"
+    else
+        surface_tag = ""
+    end
     div_str = "<div style='height: 540px; width: 540px;' " *
         "class='viewer_3Dmoljs' $tag_str " *
         "data-backgroundcolor='0xffffff' " *
-        "data-style='$(stylestring(style))'></div>"
+        "data-style='$(tagstring(style))'" *
+        "$surface_tag></div>"
     if isijulia()
         return HTML("<script type='text/javascript'>$js_jquery</script>" *
             "<script type='text/javascript'>$js_3dmol</script>$data_div$div_str")
@@ -144,19 +158,32 @@ function view(tag_str::AbstractString,
     end
 end
 
-# Convert Style instance to a style string
-# String format is "cartoon:color=red,ribbon=true"
-function stylestring(style::Style)
-    s = style.style_type
-    if length(style.options) > 0
-        s *= ":"
-        for k in keys(style.options)
-            s *= "$k=$(string(style.options[k])),"
+# Convert Style or surface instance to a tag string
+# Style format is "cartoon:color=red,ribbon=true"
+function tagstring(s::Style)
+    o = s.name
+    if length(s.options) > 0
+        o *= ":"
+        for k in keys(s.options)
+            o *= "$k=$(string(s.options[k])),"
         end
         # Strip trailing comma
-        s = s[1:end - 1]
+        o = o[1:end - 1]
     end
-    return s
+    return o
+end
+
+# Style format is "opacity:0.7;color:white"
+function tagstring(s::Surface)
+    o = ""
+    if length(s.options) > 0
+        for k in keys(s.options)
+            o *= "$k:$(string(s.options[k]));"
+        end
+        # Strip trailing comma
+        o = o[1:end - 1]
+    end
+    return o
 end
 
 end
