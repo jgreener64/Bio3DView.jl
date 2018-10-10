@@ -2,7 +2,6 @@ module Bio3DView
 
 export
     Style,
-    defaultstyle,
     viewfile,
     viewstring,
     viewstruc,
@@ -10,6 +9,9 @@ export
 
 using Blink
 using BioStructures
+
+# Counter for data elements so they can be named individually
+element_count = 0
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
@@ -34,11 +36,16 @@ end
 
 Style(s::AbstractString) = Style(s, Dict())
 
-"Default `Style` for molecular visualisation."
-const defaultstyle = Style("cartoon", Dict("color"=> "spectrum"))
-
-# Counter for data elements so they can be named individually
-element_count = 0
+# Default style for molecular visualisation, depends on file format
+function defaultstyle(format::AbstractString)
+    if format == "pdb"
+        return Style("cartoon", Dict("color"=> "spectrum"))
+    elseif format in ("sdf", "xyz", "mol2", "cube")
+        return Style("sphere")
+    else
+        throw(ArgumentError("Not a valid file format: \"$fmt\""))
+    end
+end
 
 """
     viewfile(file, format)
@@ -52,7 +59,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString;
-                style::Style=defaultstyle)
+                style::Style=defaultstyle(format))
     if !(startswith(f, "http") || isfile(f))
         throw(ArgumentError("Cannot find file or URL \"$f\""))
     end
@@ -70,7 +77,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
-                style::Style=defaultstyle)
+                style::Style=defaultstyle(format))
     return view("data-type='$format'", s; style=style)
 end
 
@@ -86,7 +93,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;
-                style::Style=defaultstyle)
+                style::Style=defaultstyle("pdb"))
     io = IOBuffer()
     writepdb(io, e, atom_selectors...)
     return view("data-type='pdb'", String(take!(io)); style=style)
@@ -100,7 +107,7 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 The optional keyword argument `style` is a `Style`.
 """
-function viewpdb(p::AbstractString; style::Style=defaultstyle)
+function viewpdb(p::AbstractString; style::Style=defaultstyle("pdb"))
     if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
@@ -110,7 +117,7 @@ end
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
-                style::Style=defaultstyle)
+                style::Style)
     if length(data_str) > 0
         global element_count
         element_count += 1
@@ -130,7 +137,7 @@ function view(tag_str::AbstractString,
     else
         w = Window()
         title(w, "Bio3DView")
-        size(w, 580, 580)
+        size(w, 540, 540)
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
         else
