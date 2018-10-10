@@ -119,28 +119,36 @@ function view(tag_str::AbstractString,
                 data_str::AbstractString="";
                 style::Style=defaultstyle,
                 surface::Union{Surface, Nothing}=nothing)
+    global element_count
+    element_count += 1
     if length(data_str) > 0
-        global element_count
-        element_count += 1
-        data_element = "3dmol_data_$element_count"
-        data_div = "<textarea style='display:none;' id='$data_element'>$data_str</textarea>"
-        tag_str *= " data-element='$data_element'"
+        data_id = "3dmol_data_$element_count"
+        data_div = "<textarea style='display:none;' id='$data_id'>$data_str</textarea>"
+        tag_str *= " data-element='$data_id'"
     else
         data_div = ""
     end
     if surface != nothing
-        surface_tag = " data-surface='$(tagstring(surface))'"
+        surface_tag = "data-surface='$(tagstring(surface))'"
     else
         surface_tag = ""
     end
-    div_str = "<div style='height: 540px; width: 540px;' " *
+    viewer_id = "3dmol_viewer_$element_count"
+    div_str = "<div style='height: 540px; width: 540px;' id='$viewer_id' " *
         "class='viewer_3Dmoljs' $tag_str " *
         "data-backgroundcolor='0xffffff' " *
-        "data-style='$(tagstring(style))'" *
+        "data-style='$(tagstring(style))' " *
         "$surface_tag></div>"
+    script_str = "<script type='text/javascript'>" *
+        "\$(function() {
+            var viewer = \$3Dmol.viewers['$viewer_id'];
+            viewer.addBox({center:{x:0,y:0,z:0}, dimensions:{w:3,h:4,d:2}, color:'magenta', wireframe:true});
+            viewer.render();
+        });" *
+        "</script>"
     if isijulia()
         return HTML("<script type='text/javascript'>$js_jquery</script>" *
-            "<script type='text/javascript'>$js_3dmol</script>$data_div$div_str")
+            "<script type='text/javascript'>$js_3dmol</script>$data_div$div_str$script_str")
     else
         w = Window()
         title(w, "Bio3DView")
@@ -153,7 +161,7 @@ function view(tag_str::AbstractString,
         # The first part gets jQuery to work with Electron
         loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>" *
             "<script src='$path_jquery'></script><script src='$path_3dmol'>" *
-            "</script>$data_div$div_str")
+            "</script>$data_div$div_str$script_str")
         return w
     end
 end
