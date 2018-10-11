@@ -2,12 +2,9 @@ module Bio3DView
 
 export
     Style,
-<<<<<<< HEAD
-=======
     Surface,
     IsoSurface,
     Box,
->>>>>>> surface
     viewfile,
     viewstring,
     viewstruc,
@@ -16,11 +13,7 @@ export
 using Blink
 using BioStructures
 
-<<<<<<< HEAD
-# Counter for data elements so they can be named individually
-=======
 # Counter for viewers so they can be named individually
->>>>>>> surface
 element_count = 0
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -50,19 +43,12 @@ Style(s::AbstractString) = Style(s, Dict())
 function defaultstyle(format::AbstractString)
     if format == "pdb"
         return Style("cartoon", Dict("color"=> "spectrum"))
-<<<<<<< HEAD
-    elseif format in ("sdf", "xyz", "mol2", "cube")
-        return Style("sphere")
-=======
     elseif format in ("sdf", "xyz", "mol2")
         return Style("stick")
->>>>>>> surface
     else
         throw(ArgumentError("Not a valid file format: \"$fmt\""))
     end
 end
-<<<<<<< HEAD
-=======
 
 """
     Surface()
@@ -121,7 +107,6 @@ end
 
 Box(center, dims; color::AbstractString="black", wireframe::Bool=true) = Box(
         center, dims, color, wireframe)
->>>>>>> surface
 
 """
     viewfile(file, format)
@@ -134,16 +119,10 @@ Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 """
 function viewfile(f::AbstractString,
                 format::AbstractString;
-<<<<<<< HEAD
-                style::Style=defaultstyle(format))
-    if !(startswith(f, "http") || isfile(f))
-        throw(ArgumentError("Cannot find file or URL \"$f\""))
-=======
                 style::Style=defaultstyle(format),
                 kwargs...)
     if !isfile(f)
         throw(ArgumentError("Cannot find file \"$f\""))
->>>>>>> surface
     end
     return view("data-type='$format'", read(f, String); style=style, kwargs...)
 end
@@ -160,14 +139,9 @@ Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
-<<<<<<< HEAD
-                style::Style=defaultstyle(format))
-    return view("data-type='$format'", s; style=style)
-=======
                 style::Style=defaultstyle(format),
                 kwargs...)
     return view("data-type='$format'", s; style=style, kwargs...)
->>>>>>> surface
 end
 
 """
@@ -183,12 +157,8 @@ Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;
-<<<<<<< HEAD
-                style::Style=defaultstyle("pdb"))
-=======
                 style::Style=defaultstyle("pdb"),
                 kwargs...)
->>>>>>> surface
     io = IOBuffer()
     writepdb(io, e, atom_selectors...)
     return view("data-type='pdb'", String(take!(io)); style=style, kwargs...)
@@ -203,13 +173,9 @@ Argument is the four letter PDB ID, e.g. "1AKE".
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 `height`, `width` and `debug`.
 """
-<<<<<<< HEAD
-function viewpdb(p::AbstractString; style::Style=defaultstyle("pdb"))
-=======
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
                 kwargs...)
->>>>>>> surface
     if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
@@ -237,9 +203,6 @@ end
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
-<<<<<<< HEAD
-                style::Style)
-=======
                 style::Style,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
@@ -249,7 +212,6 @@ function view(tag_str::AbstractString,
                 debug::Bool=false)
     global element_count
     element_count += 1
->>>>>>> surface
     if length(data_str) > 0
         data_id = "3dmol_data_$element_count"
         data_div = "<textarea style='display:none;' id='$data_id'>$data_str</textarea>"
@@ -286,11 +248,7 @@ function view(tag_str::AbstractString,
             opentools(w)
         end
         title(w, "Bio3DView")
-<<<<<<< HEAD
-        size(w, 540, 540)
-=======
         size(w, width, height)
->>>>>>> surface
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
         else
