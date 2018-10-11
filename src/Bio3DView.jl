@@ -3,6 +3,7 @@ module Bio3DView
 export
     Style,
     Surface,
+    IsoSurface,
     Box,
     viewfile,
     viewstring,
@@ -12,7 +13,7 @@ export
 using Blink
 using BioStructures
 
-# Counter for data elements so they can be named individually
+# Counter for viewers so they can be named individually
 element_count = 0
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -38,23 +39,65 @@ end
 
 Style(s::AbstractString) = Style(s, Dict())
 
+# Default style for molecular visualisation, depends on file format
+function defaultstyle(format::AbstractString)
+    if format == "pdb"
+        return Style("cartoon", Dict("color"=> "spectrum"))
+    elseif format in ("sdf", "xyz", "mol2")
+        return Style("stick")
+    else
+        throw(ArgumentError("Not a valid file format: \"$fmt\""))
+    end
+end
+
+"""
+    Surface()
+    Surface(options)
+
+A style for a molecular VDW surface visualisation, with an optional `Dict` of
+options.
+An example is `Surface(Dict("opacity"=> 0.8, "colorscheme"=> "whiteCarbon"))`.
+"""
 struct Surface
     options::Dict{String, Any}
 end
 
 Surface() = Surface(Dict())
 
-# Default style for molecular visualisation, depends on file format
-function defaultstyle(format::AbstractString)
-    if format == "pdb"
-        return Style("cartoon", Dict("color"=> "spectrum"))
-    elseif format in ("sdf", "xyz", "mol2", "cube")
-        return Style("sphere")
-    else
-        throw(ArgumentError("Not a valid file format: \"$fmt\""))
-    end
+"""
+    IsoSurface(voldata, isoval)
+
+Data and styling for an isosurface visualisation.
+Arguments are the filepath with the volume data in "cube" format and the value
+to view the isosurface at.
+Optional keyword arguments are `color`, `opacity`, `wireframe` and `smoothness`.
+"""
+struct IsoSurface
+    voldata::String
+    isoval::Float64
+    color::String
+    opacity::Float64
+    wireframe::Bool
+    smoothness::Float64
 end
 
+function IsoSurface(voldata::AbstractString,
+                isoval::Real;
+                color::AbstractString="blue",
+                opacity::Real=0.8,
+                wireframe::Bool=false,
+                smoothness::Real=5)
+    return IsoSurface(voldata, isoval, color, opacity, wireframe, smoothness)
+end
+
+"""
+    Box(center, dimensions)
+
+Data and styling for a box visualisation.
+Arguments are a `Vector{Float64}` of the center coordinates and a
+`Vector{Float64}` of the box size in each dimension.
+Optional keyword arguments are `color` and `wireframe`.
+"""
 struct Box
     center::Vector{Float64}
     dims::Vector{Float64}
@@ -62,27 +105,26 @@ struct Box
     wireframe::Bool
 end
 
-Box(center, dims; color::AbstractString="black", wireframe::Bool=false) = Box(
+Box(center, dims; color::AbstractString="black", wireframe::Bool=true) = Box(
         center, dims, color, wireframe)
 
 """
     viewfile(file, format)
-    viewfile(url, format)
 
-View a molecular structure from a file or URL.
+View a molecular structure from a file.
 Displays in a popup window, or in the output cell for an IJulia notebook.
-Arguments are the filepath/URL and the format ("pdb", "sdf", "xyz", "mol2", or
-"cube").
-The optional keyword argument `style` is a `Style`.
+Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`height`, `width` and `debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString;
                 style::Style=defaultstyle(format),
                 kwargs...)
-    if !(startswith(f, "http") || isfile(f))
-        throw(ArgumentError("Cannot find file or URL \"$f\""))
+    if !isfile(f)
+        throw(ArgumentError("Cannot find file \"$f\""))
     end
-    return view("data-type='$format'", read(f, String); kwargs...)
+    return view("data-type='$format'", read(f, String); style=style, kwargs...)
 end
 
 """
@@ -90,15 +132,16 @@ end
 
 View a molecular structure contained in a string.
 Displays in a popup window, or in the output cell for an IJulia notebook.
-Arguments are the molecule string and the format ("pdb", "sdf", "xyz", "mol2",
-or "cube").
-The optional keyword argument `style` is a `Style`.
+Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
+"mol2").
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`height`, `width` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
                 style::Style=defaultstyle(format),
                 kwargs...)
-    return view("data-type='$format'", s; kwargs...)
+    return view("data-type='$format'", s; style=style, kwargs...)
 end
 
 """
@@ -109,7 +152,8 @@ View a structural element from BioStructures.jl.
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are a `StructuralElementOrList` and zero or more functions to act as
 atom selectors - see BioStructures.jl documentation for more.
-The optional keyword argument `style` is a `Style`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`height`, `width` and `debug`.
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;
@@ -117,7 +161,7 @@ function viewstruc(e::StructuralElementOrList,
                 kwargs...)
     io = IOBuffer()
     writepdb(io, e, atom_selectors...)
-    return view("data-type='pdb'", String(take!(io)); kwargs...)
+    return view("data-type='pdb'", String(take!(io)); style=style, kwargs...)
 end
 
 """
@@ -126,7 +170,8 @@ end
 View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
-The optional keyword argument `style` is a `Style`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`height`, `width` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -134,15 +179,25 @@ function viewpdb(p::AbstractString;
     if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
-    return view("data-pdb='$p'"; kwargs...)
+    return view("data-pdb='$p'"; style=style, kwargs...)
+end
+
+# Get the script to add an isosurface from an IsoSurface object
+function isosurfacestring(iso::IsoSurface)
+    return "data = `$(read(iso.voldata, String))`\n" *
+        "var voldata = new \$3Dmol.VolumeData(data, \"cube\");\n" *
+        "viewer.addIsosurface(voldata, {isoval: $(iso.isoval), " *
+        "color: \"$(iso.color)\", alpha: $(iso.opacity), " *
+        "wireframe: $(iso.wireframe), smoothness: $(iso.smoothness)});\n"
 end
 
 # Get the script to add a box from a Box object
 function boxstring(box::Box)
-    return "{center:{x:$(box.center[1]),y:$(box.center[2]),z:$(box.center[3])}, " *
+    return "viewer.addBox({" *
+        "center:{x:$(box.center[1]),y:$(box.center[2]),z:$(box.center[3])}, " *
         "dimensions:{w:$(box.dims[1]),h:$(box.dims[2]),d:$(box.dims[3])}, " *
         "color:'$(box.color)', " *
-        "wireframe:$(box.wireframe)}"
+        "wireframe:$(box.wireframe)});\n"
 end
 
 # Generate HTML to view a molecule
@@ -150,9 +205,10 @@ function view(tag_str::AbstractString,
                 data_str::AbstractString="";
                 style::Style,
                 surface::Union{Surface, Nothing}=nothing,
+                isosurface::Union{IsoSurface, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
-                height::Int64=540,
-                width::Int64=540,
+                height::Integer=540,
+                width::Integer=540,
                 debug::Bool=false)
     global element_count
     element_count += 1
@@ -174,20 +230,18 @@ function view(tag_str::AbstractString,
         "data-backgroundcolor='0xffffff' " *
         "data-style='$(tagstring(style))' " *
         "$surface_tag></div>"
-    if box != nothing
-        script_str = "<script type='text/javascript'>" *
-            "\$(function() {
-                var viewer = \$3Dmol.viewers['$viewer_id'];
-                viewer.addBox($(boxstring(box)));
-                viewer.render();
-            });" *
-            "</script>"
-    else
-        script_str = ""
+    script_str = "<script type='text/javascript'>\n\$(function() {\n" *
+        "var viewer = \$3Dmol.viewers['$viewer_id'];\n"
+    if isosurface != nothing
+        script_str *= isosurfacestring(isosurface)
     end
+    if box != nothing
+        script_str *= boxstring(box)
+    end
+    script_str *= "viewer.render();\n});\n</script>"
     if isijulia()
-        return HTML("<script type='text/javascript'>$js_jquery</script>" *
-            "<script type='text/javascript'>$js_3dmol</script>$data_div$div_str$script_str")
+        return HTML("<script type='text/javascript'>$js_jquery</script>\n" *
+            "<script type='text/javascript'>$js_3dmol</script>\n$data_div\n$div_str\n$script_str\n")
     else
         w = Window()
         if debug
@@ -201,14 +255,14 @@ function view(tag_str::AbstractString,
             req_path = path_jquery
         end
         # The first part gets jQuery to work with Electron
-        loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>" *
-            "<script src='$path_jquery'></script><script src='$path_3dmol'>" *
-            "</script>$data_div$div_str$script_str")
+        loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>\n" *
+            "<script src='$path_jquery'></script>\n" *
+            "<script src='$path_3dmol'></script>\n$data_div\n$div_str\n$script_str\n")
         return w
     end
 end
 
-# Convert Style or surface instance to a tag string
+# Convert Style instance to a tag string
 # Style format is "cartoon:color=red,ribbon=true"
 function tagstring(s::Style)
     o = s.name
@@ -223,7 +277,8 @@ function tagstring(s::Style)
     return o
 end
 
-# Style format is "opacity:0.7;color:white"
+# Convert Surface instance to a tag string
+# Surface format is "opacity:0.7;color:white"
 function tagstring(s::Surface)
     o = ""
     if length(s.options) > 0
