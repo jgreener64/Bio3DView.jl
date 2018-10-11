@@ -3,7 +3,7 @@ module Bio3DView
 export
     Style,
     Surface,
-    defaultstyle,
+    Box,
     viewfile,
     viewstring,
     viewstruc,
@@ -11,6 +11,9 @@ export
 
 using Blink
 using BioStructures
+
+# Counter for data elements so they can be named individually
+element_count = 0
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
@@ -41,11 +44,26 @@ end
 
 Surface() = Surface(Dict())
 
-"Default `Style` for molecular visualisation."
-const defaultstyle = Style("cartoon", Dict("color"=> "spectrum"))
+# Default style for molecular visualisation, depends on file format
+function defaultstyle(format::AbstractString)
+    if format == "pdb"
+        return Style("cartoon", Dict("color"=> "spectrum"))
+    elseif format in ("sdf", "xyz", "mol2", "cube")
+        return Style("sphere")
+    else
+        throw(ArgumentError("Not a valid file format: \"$fmt\""))
+    end
+end
 
-# Counter for data elements so they can be named individually
-element_count = 0
+struct Box
+    center::Vector{Float64}
+    dims::Vector{Float64}
+    color::String
+    wireframe::Bool
+end
+
+Box(center, dims; color::AbstractString="black", wireframe::Bool=false) = Box(
+        center, dims, color, wireframe)
 
 """
     viewfile(file, format)
@@ -59,6 +77,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString;
+                style::Style=defaultstyle(format),
                 kwargs...)
     if !(startswith(f, "http") || isfile(f))
         throw(ArgumentError("Cannot find file or URL \"$f\""))
@@ -77,6 +96,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
+                style::Style=defaultstyle(format),
                 kwargs...)
     return view("data-type='$format'", s; kwargs...)
 end
@@ -93,6 +113,7 @@ The optional keyword argument `style` is a `Style`.
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;
+                style::Style=defaultstyle("pdb"),
                 kwargs...)
     io = IOBuffer()
     writepdb(io, e, atom_selectors...)
@@ -107,18 +128,32 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 The optional keyword argument `style` is a `Style`.
 """
-function viewpdb(p::AbstractString; kwargs...)
+function viewpdb(p::AbstractString;
+                style::Style=defaultstyle("pdb"),
+                kwargs...)
     if !occursin(r"^[a-zA-Z0-9]{4}$", p)
         throw(ArgumentError("Not a valid PDB ID: \"$p\""))
     end
     return view("data-pdb='$p'"; kwargs...)
 end
 
+# Get the script to add a box from a Box object
+function boxstring(box::Box)
+    return "{center:{x:$(box.center[1]),y:$(box.center[2]),z:$(box.center[3])}, " *
+        "dimensions:{w:$(box.dims[1]),h:$(box.dims[2]),d:$(box.dims[3])}, " *
+        "color:'$(box.color)', " *
+        "wireframe:$(box.wireframe)}"
+end
+
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
-                style::Style=defaultstyle,
-                surface::Union{Surface, Nothing}=nothing)
+                style::Style,
+                surface::Union{Surface, Nothing}=nothing,
+                box::Union{Box, Nothing}=nothing,
+                height::Int64=540,
+                width::Int64=540,
+                debug::Bool=false)
     global element_count
     element_count += 1
     if length(data_str) > 0
@@ -134,25 +169,32 @@ function view(tag_str::AbstractString,
         surface_tag = ""
     end
     viewer_id = "3dmol_viewer_$element_count"
-    div_str = "<div style='height: 540px; width: 540px;' id='$viewer_id' " *
+    div_str = "<div style='height: $(height)px; width: $(width)px;' id='$viewer_id' " *
         "class='viewer_3Dmoljs' $tag_str " *
         "data-backgroundcolor='0xffffff' " *
         "data-style='$(tagstring(style))' " *
         "$surface_tag></div>"
-    script_str = "<script type='text/javascript'>" *
-        "\$(function() {
-            var viewer = \$3Dmol.viewers['$viewer_id'];
-            viewer.addBox({center:{x:0,y:0,z:0}, dimensions:{w:3,h:4,d:2}, color:'magenta', wireframe:true});
-            viewer.render();
-        });" *
-        "</script>"
+    if box != nothing
+        script_str = "<script type='text/javascript'>" *
+            "\$(function() {
+                var viewer = \$3Dmol.viewers['$viewer_id'];
+                viewer.addBox($(boxstring(box)));
+                viewer.render();
+            });" *
+            "</script>"
+    else
+        script_str = ""
+    end
     if isijulia()
         return HTML("<script type='text/javascript'>$js_jquery</script>" *
             "<script type='text/javascript'>$js_3dmol</script>$data_div$div_str$script_str")
     else
         w = Window()
+        if debug
+            opentools(w)
+        end
         title(w, "Bio3DView")
-        size(w, 580, 580)
+        size(w, width, height)
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
         else
