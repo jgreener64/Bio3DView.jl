@@ -109,16 +109,19 @@ Box(center, dims; color::AbstractString="black", wireframe::Bool=true) = Box(
         center, dims, color, wireframe)
 
 """
+    viewfile(file)
     viewfile(file, format)
 
 View a molecular structure from a file.
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
+If not provided, the format is guessed from the file extension, e.g.
+"myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 `height`, `width` and `debug`.
 """
 function viewfile(f::AbstractString,
-                format::AbstractString;
+                format::AbstractString=lowercase(split(f, ".")[end]);
                 style::Style=defaultstyle(format),
                 kwargs...)
     if !isfile(f)
