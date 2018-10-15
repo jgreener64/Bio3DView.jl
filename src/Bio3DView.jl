@@ -203,6 +203,33 @@ function boxstring(box::Box)
         "wireframe:$(box.wireframe)});\n"
 end
 
+function vtkcellstring(f::AbstractString)
+    coords = []
+    lines = []
+    mode = "none"
+    open(f) do file
+        for l in eachline(file)
+            if startswith(l, "POINTS")
+                mode = "points"
+            elseif startswith(l, "LINES")
+                mode = "lines"
+            elseif mode == "points"
+                push!(coords, parse.(Float64, split(l)))
+            elseif mode == "lines"
+                # Account for zero-based indexing
+                push!(lines, parse.(Int, split(l))[2:end] .+ 1)
+            end
+        end
+    end
+    o = ""
+    for (i, j) in lines
+        o *= "viewer.addLine({\n" *
+        "start:{x:$(coords[i][1]), y:$(coords[i][2]), z:$(coords[i][3])},\n" *
+        "end:{x:$(coords[j][1]), y:$(coords[j][2]), z:$(coords[j][3])}\n});\n"
+    end
+    return o
+end
+
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
@@ -210,6 +237,7 @@ function view(tag_str::AbstractString,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
+                vtkcell::Union{AbstractString, Nothing}=nothing,
                 height::Integer=540,
                 width::Integer=540,
                 debug::Bool=false)
@@ -240,6 +268,9 @@ function view(tag_str::AbstractString,
     end
     if box != nothing
         script_str *= boxstring(box)
+    end
+    if vtkcell != nothing
+        script_str *= vtkcellstring(vtkcell)
     end
     script_str *= "viewer.render();\n});\n</script>"
     if isijulia()
