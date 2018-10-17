@@ -24,8 +24,9 @@ Install Bio3DView from the package mode of the Julia REPL (press `]`):
 add https://github.com/jgreener64/Bio3DView.jl#master
 ```
 
-You may need to run `using Blink; Blink.AtomShell.install()` if you have not set up Blink.jl before.
-If you want to use Bio3DView.jl with Jupyter (optional), [IJulia](https://github.com/JuliaLang/IJulia.jl) also needs to be installed.
+Bio3DView uses [Requires.jl](https://github.com/MikeInnes/Requires.jl) to minimise dependencies so you will also need to install either Blink or IJulia (or both) to make this package useful.
+If you are using Blink, you will need to run `using Blink` before the Bio3DView functions work.
+To view structural objects from [BioStructures.jl](https://github.com/BioJulia/BioStructures.jl) you will need to have BioStructures.jl installed.
 
 ## Usage
 

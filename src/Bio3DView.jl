@@ -10,11 +10,15 @@ export
     viewstruc,
     viewpdb
 
-using Blink
-using BioStructures
+using Requires
 
 # Counter for viewers so they can be named individually
 element_count = 0
+
+function __init__()
+    @require BioStructures="de9282ab-8554-53be-b2d6-f6c222edabfc" include("biostructures.jl")
+    @require Blink="ad839575-38b3-5650-b840-f874b8c74a25" include("blink.jl")
+end
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
@@ -118,7 +122,7 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`height`, `width` and `debug`.
+`vtkcell`, `height`, `width`, `html` and `debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -138,7 +142,7 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`height`, `width` and `debug`.
+`vtkcell`, `height`, `width`, `html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -148,33 +152,13 @@ function viewstring(s::AbstractString,
 end
 
 """
-    viewstruc(struc)
-    viewstruc(struc, atom_selectors...)
-
-View a structural element from BioStructures.jl.
-Displays in a popup window, or in the output cell for an IJulia notebook.
-Arguments are a `StructuralElementOrList` and zero or more functions to act as
-atom selectors - see BioStructures.jl documentation for more.
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`height`, `width` and `debug`.
-"""
-function viewstruc(e::StructuralElementOrList,
-                atom_selectors::Function...;
-                style::Style=defaultstyle("pdb"),
-                kwargs...)
-    io = IOBuffer()
-    writepdb(io, e, atom_selectors...)
-    return view("data-type='pdb'", String(take!(io)); style=style, kwargs...)
-end
-
-"""
     viewpdb(pdbid)
 
 View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`height`, `width` and `debug`.
+`vtkcell`, `height`, `width`, `html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -240,6 +224,7 @@ function view(tag_str::AbstractString,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 height::Integer=540,
                 width::Integer=540,
+                html::Bool=false,
                 debug::Bool=false)
     global element_count
     element_count += 1
@@ -273,26 +258,29 @@ function view(tag_str::AbstractString,
         script_str *= vtkcellstring(vtkcell)
     end
     script_str *= "viewer.render();\n});\n</script>"
+    ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n" *
+            "<script type='text/javascript'>$js_3dmol</script>\n$data_div\n$div_str\n$script_str\n"
+    # Return stand-alone HTML only
+    if html
+        return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
+                "$ijulia_html</body></html>\n"
+    end
     if isijulia()
-        return HTML("<script type='text/javascript'>$js_jquery</script>\n" *
-            "<script type='text/javascript'>$js_3dmol</script>\n$data_div\n$div_str\n$script_str\n")
+        return HTML(ijulia_html)
     else
-        w = Window()
-        if debug
-            opentools(w)
+        if !isdefined(Main, :Blink)
+            throw("You do not appear to be in an IJulia notebook and Blink is not loaded - install Blink if necessary, run `using Blink` and try again")
         end
-        title(w, "Bio3DView")
-        size(w, width, height)
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
         else
             req_path = path_jquery
         end
         # The first part gets jQuery to work with Electron
-        loadhtml(w, "<script>window.\$ = window.jQuery = require('$req_path');</script>\n" *
+        blink_html = "<script>window.\$ = window.jQuery = require('$req_path');</script>\n" *
             "<script src='$path_jquery'></script>\n" *
-            "<script src='$path_3dmol'></script>\n$data_div\n$div_str\n$script_str\n")
-        return w
+            "<script src='$path_3dmol'></script>\n$data_div\n$div_str\n$script_str\n"
+        viewblink(blink_html, height, width, debug)
     end
 end
 
