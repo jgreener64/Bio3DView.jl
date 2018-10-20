@@ -122,7 +122,7 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -142,7 +142,7 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -158,7 +158,7 @@ View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -187,6 +187,7 @@ function boxstring(box::Box)
         "wireframe:$(box.wireframe)});\n"
 end
 
+# Get the script to add a unit cell from a vtk format file
 function vtkcellstring(f::AbstractString)
     coords = []
     lines = []
@@ -214,6 +215,16 @@ function vtkcellstring(f::AbstractString)
     return o
 end
 
+# Get the script to add arrows showing the coordinate axes
+function axesstring()
+    o = ""
+    for (x, y, z, col) in ((1, 0, 0, "red"), (0, 1, 0, "green"), (0, 0, 1, "blue"))
+        o *= "viewer.addArrow({\nstart:{x:0, y:0, z:0},\n" *
+                "end:{x:$x, y:$y, z:$z},\ncolor:'$col'\n});\n"
+    end
+    return o
+end
+
 # Generate HTML to view a molecule
 function view(tag_str::AbstractString,
                 data_str::AbstractString="";
@@ -222,6 +233,7 @@ function view(tag_str::AbstractString,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
+                axes::Bool=false,
                 height::Integer=540,
                 width::Integer=540,
                 html::Bool=false,
@@ -256,6 +268,9 @@ function view(tag_str::AbstractString,
     end
     if vtkcell != nothing
         script_str *= vtkcellstring(vtkcell)
+    end
+    if axes
+        script_str *= axesstring()
     end
     script_str *= "viewer.render();\n});\n</script>"
     ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n" *
