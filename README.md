@@ -8,6 +8,7 @@ Bio3DView.jl provides a viewer for molecular structures in [Julia](https://julia
 It is a wrapper round the excellent [3Dmol.js](http://3dmol.csb.pitt.edu) package [1].
 When used from the REPL or a file, the viewer shows in a popup using [Blink.jl](https://github.com/JunoLab/Blink.jl).
 When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Jupyter](http://jupyter.org) notebook or JupyterLab, the viewer shows in the output cell.
+You can also use Bio3DView.jl to generate standalone HTML, e.g. for use in a web page.
 
 [1] Nicholas Rego and David Koes,
 3Dmol.js: molecular visualization with WebGL,

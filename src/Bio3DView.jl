@@ -157,6 +157,7 @@ end
 View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
+Requires an internet connection to work.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
 `vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
 """
