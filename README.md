@@ -21,7 +21,7 @@ Contributions and bug reports are welcome.
 Julia v0.7 or later is required.
 Install Bio3DView from the package mode of the Julia REPL (press `]`):
 
-```julia
+```
 add https://github.com/jgreener64/Bio3DView.jl#master
 ```
 

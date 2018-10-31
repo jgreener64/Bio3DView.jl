@@ -5,6 +5,7 @@ export
     Surface,
     IsoSurface,
     Box,
+    Axes,
     viewfile,
     viewstring,
     viewstruc,
@@ -113,6 +114,27 @@ Box(center, dims; color::AbstractString="black", wireframe::Bool=true) = Box(
         center, dims, color, wireframe)
 
 """
+    Axes(length, radius)
+    Axes()
+
+Styling for visualisation of the coordinate axes.
+Arguments are numbers for the length and the radius of the arrows.
+The optional keyword argument `colors` is a list of 3 colors as `String`s for
+the 3 axes.
+"""
+struct Axes
+    len::Float64
+    radius::Float64
+    colors::Vector{String}
+end
+
+function Axes(len::Real=1.0,
+                radius::Real=0.1;
+                colors::Vector{String}=["red", "green", "blue"])
+    return Axes(len, radius, colors)
+end
+
+"""
     viewfile(file)
     viewfile(file, format)
 
@@ -217,11 +239,12 @@ function vtkcellstring(f::AbstractString)
 end
 
 # Get the script to add arrows showing the coordinate axes
-function axesstring()
+function axesstring(a::Axes)
     o = ""
-    for (x, y, z, col) in ((1, 0, 0, "red"), (0, 1, 0, "green"), (0, 0, 1, "blue"))
+    for (x, y, z, col) in ((a.len, 0, 0, a.colors[1]), (0, a.len, 0, a.colors[2]),
+                (0, 0, a.len, a.colors[3]))
         o *= "viewer.addArrow({\nstart:{x:0, y:0, z:0},\n" *
-                "end:{x:$x, y:$y, z:$z},\ncolor:'$col'\n});\n"
+                "end:{x:$x, y:$y, z:$z},\ncolor:'$col',\nradius:$(a.radius)\n});\n"
     end
     return o
 end
@@ -234,7 +257,7 @@ function view(tag_str::AbstractString,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
-                axes::Bool=false,
+                axes::Union{Axes, Nothing}=nothing,
                 height::Integer=540,
                 width::Integer=540,
                 html::Bool=false,
@@ -270,8 +293,8 @@ function view(tag_str::AbstractString,
     if vtkcell != nothing
         script_str *= vtkcellstring(vtkcell)
     end
-    if axes
-        script_str *= axesstring()
+    if axes != nothing
+        script_str *= axesstring(axes)
     end
     script_str *= "viewer.render();\n});\n</script>"
     ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n" *
@@ -285,7 +308,9 @@ function view(tag_str::AbstractString,
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
-            throw("You do not appear to be in an IJulia notebook and Blink is not loaded - install Blink if necessary, run `using Blink` and try again")
+            throw("You do not appear to be in an IJulia notebook and Blink is " *
+                    "not loaded - install Blink if necessary, run `using Blink` " *
+                    "and try again")
         end
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
