@@ -6,7 +6,7 @@ export
     IsoSurface,
     Box,
     Axes,
-    ViewAngle,
+    CameraAngle,
     viewfile,
     viewstring,
     viewstruc,
@@ -136,13 +136,13 @@ function Axes(len::Real=1.0,
 end
 
 """
-    ViewAngle(posx, posy, posz, zoom, qx, qy, qz, qw)
+    CameraAngle(posx, posy, posz, zoom, qx, qy, qz, qw)
 
 A custom perspective to view the molecule from.
 Arguments are x/y/z translation, zoom, and x/y/z/w rotation quaternion.
-Default is `ViewAngle(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)`.
+Default is `CameraAngle(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)`.
 """
-struct ViewAngle
+struct CameraAngle
     posx::Float64
     posy::Float64
     posz::Float64
@@ -269,7 +269,7 @@ function axesstring(a::Axes)
 end
 
 # Get the script to change the view to a custom angle
-function viewanglestring(v::ViewAngle)
+function cameraanglestring(v::CameraAngle)
     return "viewer.setView([$(v.posx), $(v.posy), $(v.posz), $(v.zoom), " *
             "$(v.qx), $(v.qy), $(v.qz), $(v.qw)]);\n"
 end
@@ -283,7 +283,7 @@ function view(tag_str::AbstractString,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 axes::Union{Axes, Nothing}=nothing,
-                viewangle::Union{ViewAngle, Nothing}=nothing,
+                cameraangle::Union{CameraAngle, Nothing}=nothing,
                 height::Integer=540,
                 width::Integer=540,
                 html::Bool=false,
@@ -322,8 +322,8 @@ function view(tag_str::AbstractString,
     if axes != nothing
         script_str *= axesstring(axes)
     end
-    if viewangle != nothing
-        script_str *= viewanglestring(viewangle)
+    if cameraangle != nothing
+        script_str *= cameraanglestring(cameraangle)
     end
     script_str *= "viewer.render();\n});\n</script>"
     ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n" *
