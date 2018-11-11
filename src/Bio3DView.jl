@@ -269,9 +269,9 @@ function axesstring(a::Axes)
 end
 
 # Get the script to change the view to a custom angle
-function cameraanglestring(v::CameraAngle)
-    return "viewer.setView([$(v.posx), $(v.posy), $(v.posz), $(v.zoom), " *
-            "$(v.qx), $(v.qy), $(v.qz), $(v.qw)]);\n"
+function cameraanglestring(a::CameraAngle)
+    return "viewer.setView([$(a.posx), $(a.posy), $(a.posz), $(a.zoom), " *
+            "$(a.qx), $(a.qy), $(a.qz), $(a.qw)]);\n"
 end
 
 # Generate HTML to view a molecule
