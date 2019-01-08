@@ -7,7 +7,8 @@ version = "0.1.0"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 BioStructures = "de9282ab-8554-53be-b2d6-f6c222edabfc"
 
 [targets]
-test = ["BioStructures"]
+test = ["Test", "BioStructures"]
