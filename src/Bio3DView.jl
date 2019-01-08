@@ -163,7 +163,7 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -183,7 +183,7 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -200,7 +200,7 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Requires an internet connection to work.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `height`, `width`, `html` and `debug`.
+`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -337,9 +337,8 @@ function view(tag_str::AbstractString,
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
-            throw("You do not appear to be in an IJulia notebook and Blink is " *
-                    "not loaded - install Blink if necessary, run `using Blink` " *
-                    "and try again")
+            throw("Cannot run the command as you do not appear to be in an IJulia " *
+                    "notebook, Blink is not loaded and html is not set to true")
         end
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")
