@@ -1,0 +1,13 @@
+name = "Bio3DView"
+uuid = "94403ae2-136a-11e9-2286-99801ca6b931"
+authors = ["Joe Greener <jgreener@hotmail.co.uk>"]
+version = "0.1.0"
+
+[deps]
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
+[extras]
+BioStructures = "de9282ab-8554-53be-b2d6-f6c222edabfc"
+
+[targets]
+test = ["BioStructures"]
