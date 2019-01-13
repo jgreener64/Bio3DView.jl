@@ -21,7 +21,7 @@ Julia v0.7 or later is required.
 Install Bio3DView from the package mode of the Julia REPL (press `]`):
 
 ```
-add https://github.com/jgreener64/Bio3DView.jl#master
+add Bio3DView
 ```
 
 Bio3DView uses [Requires.jl](https://github.com/MikeInnes/Requires.jl) to minimise dependencies so you will also need to install either Blink or IJulia (or both) to make this package useful, though you can generate HTML without them.
