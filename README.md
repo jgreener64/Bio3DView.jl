@@ -31,3 +31,9 @@ To view structural objects from [BioStructures.jl](https://github.com/BioJulia/B
 ## Usage
 
 See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
+
+## Citation
+
+If you use Bio3DView, please cite the BioStructures paper where it is mentioned:
+
+Greener JG, Selvaraj J and Ward BJ. BioStructures.jl: read, write and manipulate macromolecular structures in Julia, *Bioinformatics* (2020) - [link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btaa502/5837108?guestAccessKey=aec90643-1d43-4521-9883-4a4a669187da)
