@@ -24,6 +24,8 @@ end
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
+ispluto() = isdefined(Main, :PlutoRunner)
+
 path_lib = normpath(@__DIR__, "..", "js")
 path_3dmol = joinpath(path_lib, "3Dmol-nojquery-min.js")
 path_jquery = joinpath(path_lib, "jquery-3.3.1.min.js")
@@ -333,7 +335,7 @@ function view(tag_str::AbstractString,
         return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
                 "$ijulia_html</body></html>\n"
     end
-    if isijulia()
+    if isijulia()  || ispluto()
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
