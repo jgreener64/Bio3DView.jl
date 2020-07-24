@@ -335,7 +335,7 @@ function view(tag_str::AbstractString,
         return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
                 "$ijulia_html</body></html>\n"
     end
-    if isijulia()  || ispluto()
+    if isijulia() || ispluto()
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
