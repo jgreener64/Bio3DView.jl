@@ -6,7 +6,7 @@
 Bio3DView.jl provides a viewer for molecular structures in [Julia](https://julialang.org).
 It is a wrapper round the excellent [3Dmol.js](http://3dmol.csb.pitt.edu) package [1].
 When used from the REPL or a file, the viewer shows in a popup using [Blink.jl](https://github.com/JunoLab/Blink.jl).
-When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Jupyter](http://jupyter.org) notebook or JupyterLab, the viewer shows in the output cell.
+When used from [IJulia](https://github.com/JuliaLang/IJulia.jl) running in a [Jupyter](http://jupyter.org) notebook or JupyterLab, or from [Pluto.jl](https://github.com/fonsp/Pluto.jl), the viewer shows in the output cell.
 You can also use Bio3DView.jl to generate standalone HTML, e.g. for use in a web page.
 
 [1] Nicholas Rego and David Koes,
@@ -24,7 +24,7 @@ Install Bio3DView from the package mode of the Julia REPL (press `]`):
 add Bio3DView
 ```
 
-Bio3DView uses [Requires.jl](https://github.com/MikeInnes/Requires.jl) to minimise dependencies so you will also need to install either Blink or IJulia (or both) to make this package useful, though you can generate HTML without them.
+Bio3DView uses [Requires.jl](https://github.com/MikeInnes/Requires.jl) to minimise dependencies so you will also need to install either Blink, IJulia or Pluto to make this package useful, though you can generate HTML without them.
 If you are using Blink, you will need to run `using Blink` before the Bio3DView functions work.
 To view structural objects from [BioStructures.jl](https://github.com/BioJulia/BioStructures.jl) you will need to have BioStructures.jl installed.
 
