@@ -36,4 +36,4 @@ See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DV
 
 If you use Bio3DView, please cite the BioStructures paper where it is mentioned:
 
-Greener JG, Selvaraj J and Ward BJ. BioStructures.jl: read, write and manipulate macromolecular structures in Julia, *Bioinformatics* (2020) - [link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btaa502/5837108?guestAccessKey=aec90643-1d43-4521-9883-4a4a669187da)
+Greener JG, Selvaraj J and Ward BJ. BioStructures.jl: read, write and manipulate macromolecular structures in Julia, *Bioinformatics* 36(14):4206-4207 (2020) - [link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btaa502/5837108?guestAccessKey=aec90643-1d43-4521-9883-4a4a669187da) - [PDF](https://github.com/BioJulia/BioStructures.jl/blob/master/paper.pdf)
