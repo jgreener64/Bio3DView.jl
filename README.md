@@ -1,7 +1,7 @@
 # Bio3DView.jl
 
-[![Build Status](https://travis-ci.org/jgreener64/Bio3DView.jl.svg?branch=master)](https://travis-ci.org/jgreener64/Bio3DView.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/l2gep9mdvcnhsc4p/branch/master?svg=true)](https://ci.appveyor.com/project/jgreener64/bio3dview-jl/branch/master)
+[![Build status](https://github.com/jgreener64/Bio3DView.jl/workflows/CI/badge.svg)](https://github.com/jgreener64/Bio3DView.jl/actions)
+[![codecov](https://codecov.io/gh/jgreener64/Bio3DView.jl/branch/master/graph/badge.svg?token=SDiIEXLZQV)](https://codecov.io/gh/jgreener64/Bio3DView.jl)
 
 Bio3DView.jl provides a viewer for molecular structures in [Julia](https://julialang.org).
 It is a wrapper round the excellent [3Dmol.js](http://3dmol.csb.pitt.edu) package [1].
