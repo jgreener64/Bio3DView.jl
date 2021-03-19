@@ -4,6 +4,7 @@ export
     Style,
     Surface,
     IsoSurface,
+    Line,
     Box,
     Axes,
     CameraAngle,
@@ -96,6 +97,33 @@ function IsoSurface(voldata::AbstractString,
                 wireframe::Bool=false,
                 smoothness::Real=5)
     return IsoSurface(voldata, isoval, color, opacity, wireframe, smoothness)
+end
+
+"""
+    Line(start, stop; kwargs...)
+
+Data and styling for a line visualisation.
+Arguments are the 3D coordinate vectors for the beginning and end of the line.
+Optional keyword arguments are `color`, `opacity`, `wireframe` and `dashed`.
+"""
+struct Line
+    start::Vector{Float64}
+    stop::Vector{Float64}
+    color::String
+    opacity::Float64
+    wireframe::Bool
+    dashed::Bool
+end
+
+function Line(
+    start,
+    stop;
+    color::AbstractString="black",
+    opacity::Float64=1.0,
+    wireframe::Bool=true,
+    dashed::Bool=false,
+)
+    return Line(start, stop, color, opacity, wireframe, dashed)
 end
 
 """
@@ -222,6 +250,16 @@ function isosurfacestring(iso::IsoSurface)
         "wireframe: $(iso.wireframe), smoothness: $(iso.smoothness)});\n"
 end
 
+function linestring(line::Line)
+    return "viewer.addLine({" *
+        "start:{x:$(line.start[1]),y:$(line.start[2]),z:$(line.start[3])}, " *
+        "end:{x:$(line.stop[1]),y:$(line.stop[2]),z:$(line.stop[3])}, " *
+        "color:'$(line.color)', " *
+        "alpha:$(line.opacity), " *
+        "wireframe:$(line.wireframe), " *
+        "dashed:$(line.dashed)});\n"
+end
+
 # Get the script to add a box from a Box object
 function boxstring(box::Box)
     return "viewer.addBox({" *
@@ -282,6 +320,7 @@ function view(tag_str::AbstractString,
                 style::Style,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
+                lines::Union{Line, Vector{Line}, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 axes::Union{Axes, Nothing}=nothing,
@@ -314,6 +353,9 @@ function view(tag_str::AbstractString,
         "var viewer = \$3Dmol.viewers['$viewer_id'];\n"
     if isosurface != nothing
         script_str *= isosurfacestring(isosurface)
+    end
+    if lines != nothing
+        script_str *= mapreduce(linestring, *, lines isa Line ? [lines] : lines)
     end
     if box != nothing
         script_str *= boxstring(box)
