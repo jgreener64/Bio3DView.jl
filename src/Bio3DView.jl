@@ -4,9 +4,14 @@ export
     Style,
     Surface,
     IsoSurface,
+    Line,
+    Cylinder,
     Box,
     Axes,
     CameraAngle,
+    NoCap,
+    FlatCap,
+    RoundCap,
     viewfile,
     viewstring,
     viewstruc,
@@ -99,6 +104,89 @@ function IsoSurface(voldata::AbstractString,
 end
 
 """
+    Line(start, stop; kwargs...)
+
+Data and styling for a line visualisation.
+Arguments are the 3D coordinate vectors for the beginning and end of the line.
+Optional keyword arguments are `color`, `opacity`, `wireframe` and `dashed`.
+"""
+struct Line
+    start::Vector{Float64}
+    stop::Vector{Float64}
+    color::String
+    opacity::Float64
+    wireframe::Bool
+    dashed::Bool
+end
+
+function Line(
+    start,
+    stop;
+    color::AbstractString="black",
+    opacity::Float64=1.0,
+    wireframe::Bool=true,
+    dashed::Bool=false,
+)
+    return Line(start, stop, color, opacity, wireframe, dashed)
+end
+
+"""
+    CapStyle
+
+An primitive enum type for the three cap style options:
+ - `NoCap`
+ - `FlatCap`
+ - `RoundCap`
+"""
+CapStyle
+
+@enum CapStyle NoCap FlatCap RoundCap
+
+"""
+    Cylinder(start, stop; kwargs...)
+
+Data and styling for a cylinder visualisation.
+Arguments are the 3D coordinate vectors for the beginning and end of the cylinder.
+Optional keyword arguments are `color`, `opacity`, `wireframe`, `radius`, `startcap`,
+`stopcap` and `dashed`. `startcap` and `stopcap` must be a [`CapStyle`](@ref)
+"""
+struct Cylinder
+    start::Vector{Float64}
+    stop::Vector{Float64}
+    color::String
+    opacity::Float64
+    wireframe::Bool
+    radius::Float64
+    startcap::CapStyle
+    stopcap::CapStyle
+    dashed::Bool
+end
+
+function Cylinder(
+    start,
+    stop;
+    color::AbstractString="black",
+    opacity::Float64=1.0,
+    wireframe::Bool=true,
+    radius::Float64=0.1,
+    startcap::CapStyle=NoCap,
+    stopcap::CapStyle=NoCap,
+    dashed::Bool=false,
+)
+    return Cylinder(
+        start,
+        stop,
+        color,
+        opacity,
+        wireframe,
+        radius,
+        startcap,
+        stopcap,
+        dashed,
+    )
+end
+
+"""
     Box(center, dimensions)
 
 Data and styling for a box visualisation.
@@ -165,7 +253,8 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and
+`debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -184,8 +273,8 @@ View a molecular structure contained in a string.
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
+`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -201,8 +290,8 @@ View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Requires an internet connection to work.
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
+`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -220,6 +309,30 @@ function isosurfacestring(iso::IsoSurface)
         "viewer.addIsosurface(voldata, {isoval: $(iso.isoval), " *
         "color: \"$(iso.color)\", alpha: $(iso.opacity), " *
         "wireframe: $(iso.wireframe), smoothness: $(iso.smoothness)});\n"
+end
+
+function linestring(line::Line)
+    return "viewer.addLine({" *
+        "start:{x:$(line.start[1]),y:$(line.start[2]),z:$(line.start[3])}, " *
+        "end:{x:$(line.stop[1]),y:$(line.stop[2]),z:$(line.stop[3])}, " *
+        "color:'$(line.color)', " *
+        "alpha:$(line.opacity), " *
+        "wireframe:$(line.wireframe), " *
+        "dashed:$(line.dashed)});\n"
+end
+
+function cylinderstring(cyl::Cylinder)
+    return "viewer.addCylinder({" *
+        "start:{x:$(cyl.start[1]),y:$(cyl.start[2]),z:$(cyl.start[3])}, " *
+        "end:{x:$(cyl.stop[1]),y:$(cyl.stop[2]),z:$(cyl.stop[3])}, " *
+        "color:'$(cyl.color)', " *
+        "alpha:$(cyl.opacity), " *
+        "wireframe:$(cyl.wireframe), " *
+        "wireframe:$(cyl.wireframe), " *
+        "radius:$(cyl.radius), " *
+        "fromCap:$(Int(cyl.startcap)), " *
+        "toCap:$(Int(cyl.stopcap)), " *
+        "dashed:$(cyl.dashed)});\n"
 end
 
 # Get the script to add a box from a Box object
@@ -282,6 +395,8 @@ function view(tag_str::AbstractString,
                 style::Style,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
+                lines::Union{Line, Vector{Line}, Nothing}=nothing,
+                cylinders::Union{Cylinder, Vector{Cylinder}, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 axes::Union{Axes, Nothing}=nothing,
@@ -314,6 +429,16 @@ function view(tag_str::AbstractString,
         "var viewer = \$3Dmol.viewers['$viewer_id'];\n"
     if isosurface != nothing
         script_str *= isosurfacestring(isosurface)
+    end
+    if lines != nothing
+        script_str *= mapreduce(linestring, *, lines isa Line ? [lines] : lines)
+    end
+    if cylinders != nothing
+        script_str *= mapreduce(
+            cylinderstring,
+            *,
+            cylinders isa Cylinder ? [cylinders] : cylinders,
+        )
     end
     if box != nothing
         script_str *= boxstring(box)
