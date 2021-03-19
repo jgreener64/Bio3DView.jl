@@ -8,6 +8,9 @@ export
     Box,
     Axes,
     CameraAngle,
+    NoCap,
+    FlatCap,
+    RoundCap,
     viewfile,
     viewstring,
     viewstruc,
@@ -125,6 +128,18 @@ function Line(
 )
     return Line(start, stop, color, opacity, wireframe, dashed)
 end
+
+"""
+    CapStyle
+
+An primitive enum type for the three cap style options:
+ - `NoCap`
+ - `FlatCap`
+ - `RoundCap`
+"""
+CapStyle
+
+@enum CapStyle NoCap FlatCap RoundCap
 
 """
     Box(center, dimensions)
