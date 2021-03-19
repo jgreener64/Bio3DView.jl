@@ -168,7 +168,7 @@ function Cylinder(
     color::AbstractString="black",
     opacity::Float64=1.0,
     wireframe::Bool=true,
-    radius::Float64=1.0,
+    radius::Float64=0.1,
     startcap::CapStyle=NoCap,
     stopcap::CapStyle=NoCap,
     dashed::Bool=false,
