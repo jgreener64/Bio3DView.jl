@@ -5,6 +5,7 @@ export
     Surface,
     IsoSurface,
     Line,
+    Cylinder,
     Box,
     Axes,
     CameraAngle,
@@ -142,6 +143,50 @@ CapStyle
 @enum CapStyle NoCap FlatCap RoundCap
 
 """
+    Cylinder(start, stop; kwargs...)
+
+Data and styling for a cylinder visualisation.
+Arguments are the 3D coordinate vectors for the beginning and end of the cylinder.
+Optional keyword arguments are `color`, `opacity`, `wireframe`, `radius`, `startcap`,
+`stopcap` and `dashed`. `startcap` and `stopcap` must be a [`CapStyle`](@ref)
+"""
+struct Cylinder
+    start::Vector{Float64}
+    stop::Vector{Float64}
+    color::String
+    opacity::Float64
+    wireframe::Bool
+    radius::Float64
+    startcap::CapStyle
+    stopcap::CapStyle
+    dashed::Bool
+end
+
+function Cylinder(
+    start,
+    stop;
+    color::AbstractString="black",
+    opacity::Float64=1.0,
+    wireframe::Bool=true,
+    radius::Float64=1.0,
+    startcap::CapStyle=NoCap,
+    stopcap::CapStyle=NoCap,
+    dashed::Bool=false,
+)
+    return Cylinder(
+        start,
+        stop,
+        color,
+        opacity,
+        wireframe,
+        radius,
+        startcap,
+        stopcap,
+        dashed,
+    )
+end
+
+"""
     Box(center, dimensions)
 
 Data and styling for a box visualisation.
@@ -275,6 +320,20 @@ function linestring(line::Line)
         "dashed:$(line.dashed)});\n"
 end
 
+function cylinderstring(cyl::Cylinder)
+    return "viewer.addCylinder({" *
+        "start:{x:$(cyl.start[1]),y:$(cyl.start[2]),z:$(cyl.start[3])}, " *
+        "end:{x:$(cyl.stop[1]),y:$(cyl.stop[2]),z:$(cyl.stop[3])}, " *
+        "color:'$(cyl.color)', " *
+        "alpha:$(cyl.opacity), " *
+        "wireframe:$(cyl.wireframe), " *
+        "wireframe:$(cyl.wireframe), " *
+        "radius:$(cyl.radius), " *
+        "fromCap:$(Int(cyl.startcap)), " *
+        "toCap:$(Int(cyl.stopcap)), " *
+        "dashed:$(cyl.dashed)});\n"
+end
+
 # Get the script to add a box from a Box object
 function boxstring(box::Box)
     return "viewer.addBox({" *
@@ -336,6 +395,7 @@ function view(tag_str::AbstractString,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
                 lines::Union{Line, Vector{Line}, Nothing}=nothing,
+                cylinders::Union{Cylinder, Vector{Cylinder}, Nothing}=nothing,
                 box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 axes::Union{Axes, Nothing}=nothing,
@@ -371,6 +431,13 @@ function view(tag_str::AbstractString,
     end
     if lines != nothing
         script_str *= mapreduce(linestring, *, lines isa Line ? [lines] : lines)
+    end
+    if cylinders != nothing
+        script_str *= mapreduce(
+            cylinderstring,
+            *,
+            cylinders isa Cylinder ? [cylinders] : cylinders,
+        )
     end
     if box != nothing
         script_str *= boxstring(box)
