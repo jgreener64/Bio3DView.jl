@@ -253,7 +253,8 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and
+`debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -272,8 +273,8 @@ View a molecular structure contained in a string.
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
+`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -289,8 +290,8 @@ View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Requires an internet connection to work.
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
+`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
