@@ -5,17 +5,17 @@ export
     Surface,
     IsoSurface,
     Line,
+    NoCap,
+    FlatCap,
+    RoundCap,
     Cylinder,
     Box,
     Axes,
     CameraAngle,
-    NoCap,
-    FlatCap,
-    RoundCap,
     viewfile,
     viewstring,
-    viewstruc,
-    viewpdb
+    viewpdb,
+    viewstruc
 
 using Requires
 
@@ -119,24 +119,22 @@ struct Line
     dashed::Bool
 end
 
-function Line(
-    start,
-    stop;
-    color::AbstractString="black",
-    opacity::Float64=1.0,
-    wireframe::Bool=true,
-    dashed::Bool=false,
-)
+function Line(start,
+                stop;
+                color::AbstractString="black",
+                opacity::Real=1.0,
+                wireframe::Bool=true,
+                dashed::Bool=false)
     return Line(start, stop, color, opacity, wireframe, dashed)
 end
 
 """
     CapStyle
 
-An primitive enum type for the three cap style options:
- - `NoCap`
- - `FlatCap`
- - `RoundCap`
+A primitive enum type for the three [`Cylinder`](@ref) cap style options:
+  - `NoCap`
+  - `FlatCap`
+  - `RoundCap`
 """
 CapStyle
 
@@ -148,7 +146,8 @@ CapStyle
 Data and styling for a cylinder visualisation.
 Arguments are the 3D coordinate vectors for the beginning and end of the cylinder.
 Optional keyword arguments are `color`, `opacity`, `wireframe`, `radius`, `startcap`,
-`stopcap` and `dashed`. `startcap` and `stopcap` must be a [`CapStyle`](@ref)
+`stopcap` and `dashed`.
+`startcap` and `stopcap` must be a [`CapStyle`](@ref).
 """
 struct Cylinder
     start::Vector{Float64}
@@ -162,17 +161,15 @@ struct Cylinder
     dashed::Bool
 end
 
-function Cylinder(
-    start,
-    stop;
-    color::AbstractString="black",
-    opacity::Float64=1.0,
-    wireframe::Bool=true,
-    radius::Float64=0.1,
-    startcap::CapStyle=NoCap,
-    stopcap::CapStyle=NoCap,
-    dashed::Bool=false,
-)
+function Cylinder(start,
+                stop;
+                color::AbstractString="black",
+                opacity::Float64=1.0,
+                wireframe::Bool=true,
+                radius::Float64=0.1,
+                startcap::CapStyle=NoCap,
+                stopcap::CapStyle=NoCap,
+                dashed::Bool=false)
     return Cylinder(
         start,
         stop,
@@ -253,8 +250,8 @@ Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and
-`debug`.
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`,
+`html` and `debug`.
 """
 function viewfile(f::AbstractString,
                 format::AbstractString=lowercase(split(f, ".")[end]);
@@ -273,8 +270,9 @@ View a molecular structure contained in a string.
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
-`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`,
+`html` and `debug`.
 """
 function viewstring(s::AbstractString,
                 format::AbstractString;
@@ -290,8 +288,9 @@ View a structure from the Protein Data Bank (PDB).
 Displays in a popup window, or in the output cell for an IJulia notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Requires an internet connection to work.
-Optional keyword arguments are `style`, `surface`, `isosurface`, `box`, `lines`,
-`cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`,
+`html` and `debug`.
 """
 function viewpdb(p::AbstractString;
                 style::Style=defaultstyle("pdb"),
@@ -311,6 +310,7 @@ function isosurfacestring(iso::IsoSurface)
         "wireframe: $(iso.wireframe), smoothness: $(iso.smoothness)});\n"
 end
 
+# Get the script to add a line from a Line object
 function linestring(line::Line)
     return "viewer.addLine({" *
         "start:{x:$(line.start[1]),y:$(line.start[2]),z:$(line.start[3])}, " *
@@ -321,6 +321,7 @@ function linestring(line::Line)
         "dashed:$(line.dashed)});\n"
 end
 
+# Get the script to add a cylinder from a Cylinder object
 function cylinderstring(cyl::Cylinder)
     return "viewer.addCylinder({" *
         "start:{x:$(cyl.start[1]),y:$(cyl.start[2]),z:$(cyl.start[3])}, " *
@@ -395,9 +396,9 @@ function view(tag_str::AbstractString,
                 style::Style,
                 surface::Union{Surface, Nothing}=nothing,
                 isosurface::Union{IsoSurface, Nothing}=nothing,
+                box::Union{Box, Nothing}=nothing,
                 lines::Union{Line, Vector{Line}, Nothing}=nothing,
                 cylinders::Union{Cylinder, Vector{Cylinder}, Nothing}=nothing,
-                box::Union{Box, Nothing}=nothing,
                 vtkcell::Union{AbstractString, Nothing}=nothing,
                 axes::Union{Axes, Nothing}=nothing,
                 cameraangle::Union{CameraAngle, Nothing}=nothing,

@@ -11,7 +11,8 @@ Displays in a popup window, or in the output cell for an IJulia notebook.
 Arguments are a `StructuralElementOrList` and zero or more functions to act as
 atom selectors - see BioStructures.jl documentation for more.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
-`vtkcell`, `axes`, `cameraangle`, `height`, `width`, `html` and `debug`.
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`,
+`html` and `debug`.
 """
 function viewstruc(e::StructuralElementOrList,
                 atom_selectors::Function...;

@@ -14,7 +14,6 @@ cylinders = [
     Cylinder([0.0, 1.0, 2.0], [6.0, 7.0, 7.0]),
     Cylinder([-3.0, -2.0, -1.0], [3.0, 4.0, 5.0]; startcap=RoundCap, stopcap=FlatCap),
 ]
-
 axes = Axes(5, 0.3)
 cameraangle = CameraAngle(0, 0, 0, 0, 0, 0, 0, 1)
 
@@ -36,9 +35,8 @@ viewstruc(struc['A'], html=true)
 viewstruc(struc, disorderselector, style=Style("sphere"), html=true)
 viewstruc(struc['A'], surface=surface, html=true)
 
-viewfile(testfile("benzene.sdf"), "sdf", box=box, html=true)
 viewfile(testfile("benzene.sdf"), "sdf", isosurface=isosurface, html=true)
-
+viewfile(testfile("benzene.sdf"), "sdf", box=box, html=true)
 viewfile(testfile("benzene.sdf"), "sdf", lines=lines, html=true)
 viewfile(testfile("benzene.sdf"), "sdf", lines=lines[1], html=true)
 viewfile(testfile("benzene.sdf"), "sdf", cylinders=cylinders, html=true)
@@ -52,5 +50,4 @@ viewfile(testfile("IRMOF-1.xyz"), "xyz", isosurface=isosurface,
 isosurface = IsoSurface(testfile("SBMOF-1.cube"), 100.0, wireframe=true,
                 color="green")
 viewfile(testfile("SBMOF-1.xyz"), "xyz"; isosurface=isosurface,
-            vtkcell=testfile("SBMOF-1.vtk"), axes=Axes(5, 0.3),
-            cameraangle=CameraAngle(0, 0, 0, 0, 0, 0, 0, 1), html=true)
+            vtkcell=testfile("SBMOF-1.vtk"), axes=axes, cameraangle=cameraangle, html=true)
