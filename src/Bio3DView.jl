@@ -18,6 +18,7 @@ export
     viewstruc
 
 using Requires
+using Base64
 
 # Counter for viewers so they can be named individually
 element_count = 0
@@ -34,8 +35,9 @@ ispluto() = isdefined(Main, :PlutoRunner)
 path_lib = normpath(@__DIR__, "..", "js")
 path_3dmol = joinpath(path_lib, "3Dmol-nojquery-min.js")
 path_jquery = joinpath(path_lib, "jquery-3.3.1.min.js")
-js_3dmol = read(path_3dmol, String)
 js_jquery = read(path_jquery, String)
+js_3dmol = read(path_3dmol, String)
+js_3dmol_base64 = Base64.base64encode(js_3dmol)
 
 """
     Style(style_type)
@@ -303,7 +305,7 @@ end
 
 # Get the script to add an isosurface from an IsoSurface object
 function isosurfacestring(iso::IsoSurface)
-    return "data = `$(read(iso.voldata, String))`\n" *
+    return "var data = `$(read(iso.voldata, String))`\n" *
         "var voldata = new \$3Dmol.VolumeData(data, \"cube\");\n" *
         "viewer.addIsosurface(voldata, {isoval: $(iso.isoval), " *
         "color: \"$(iso.color)\", alpha: $(iso.opacity), " *
@@ -454,8 +456,13 @@ function view(tag_str::AbstractString,
         script_str *= cameraanglestring(cameraangle)
     end
     script_str *= "viewer.render();\n});\n</script>"
-    ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n" *
-            "<script type='text/javascript'>$js_3dmol</script>\n$data_div\n$div_str\n$script_str\n"
+    ijulia_html = """
+    <script type='text/javascript'>$js_jquery</script>
+    <script src='data:text/javascript;base64, $js_3dmol_base64'></script>
+    $data_div
+    $div_str
+    $script_str
+    """
     # Return stand-alone HTML only
     if html
         return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
