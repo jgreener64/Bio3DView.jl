@@ -34,8 +34,8 @@ ispluto() = isdefined(Main, :PlutoRunner)
 path_lib = normpath(@__DIR__, "..", "js")
 path_3dmol = joinpath(path_lib, "3Dmol-nojquery-min.js")
 path_jquery = joinpath(path_lib, "jquery-3.3.1.min.js")
-js_jquery = read(path_jquery, String)
 js_3dmol = read(path_3dmol, String)
+js_jquery = read(path_jquery, String)
 
 """
     Style(style_type)
