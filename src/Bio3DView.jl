@@ -18,7 +18,6 @@ export
     viewstruc
 
 using Requires
-using Base64
 
 # Counter for viewers so they can be named individually
 element_count = 0
@@ -37,7 +36,6 @@ path_3dmol = joinpath(path_lib, "3Dmol-nojquery-min.js")
 path_jquery = joinpath(path_lib, "jquery-3.3.1.min.js")
 js_jquery = read(path_jquery, String)
 js_3dmol = read(path_3dmol, String)
-js_3dmol_base64 = Base64.base64encode(js_3dmol)
 
 """
     Style(style_type)
@@ -428,8 +426,14 @@ function view(tag_str::AbstractString,
         "data-backgroundcolor='0xffffff' " *
         "data-style='$(tagstring(style))' " *
         "$surface_tag></div>"
-    script_str = "<script type='text/javascript'>\n\$(function() {\n" *
-        "var viewer = \$3Dmol.viewers['$viewer_id'];\n"
+    script_str = "<script type='text/javascript'>\n"
+    if ispluto()
+        script_str *= "$js_3dmol;\n"
+    end
+    script_str *= """
+                \$(function() {
+                    var viewer = \$3Dmol.viewers['$viewer_id'];
+                """
     if isosurface != nothing
         script_str *= isosurfacestring(isosurface)
     end
@@ -456,13 +460,15 @@ function view(tag_str::AbstractString,
         script_str *= cameraanglestring(cameraangle)
     end
     script_str *= "viewer.render();\n});\n</script>"
-    ijulia_html = """
-    <script type='text/javascript'>$js_jquery</script>
-    <script src='data:text/javascript;base64, $js_3dmol_base64'></script>
-    $data_div
-    $div_str
-    $script_str
-    """
+    ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n"
+    if isijulia()
+        ijulia_html *= "<script type='text/javascript'>$js_3dmol</script>\n"
+    end
+    ijulia_html *= """
+                   $data_div
+                   $div_str
+                   $script_str
+                   """
     # Return stand-alone HTML only
     if html
         return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
