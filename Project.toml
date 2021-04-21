@@ -4,7 +4,6 @@ authors = ["Joe Greener <jgreener@hotmail.co.uk>"]
 version = "0.1.2"
 
 [deps]
-Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
