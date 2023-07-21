@@ -1,7 +1,7 @@
 name = "Bio3DView"
 uuid = "99c8bb3a-9d13-5280-9740-b4880ed9c598"
 authors = ["Joe Greener <jgreener@hotmail.co.uk>"]
-version = "0.1.4"
+version = "0.1.5"
 
 [deps]
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
