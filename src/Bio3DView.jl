@@ -28,7 +28,7 @@ function __init__()
 end
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
-
+isvscode() = isdefined(Main, :VSCodeServer) && !isinteractive()
 ispluto() = isdefined(Main, :PlutoRunner)
 
 path_lib = normpath(@__DIR__, "..", "js")
@@ -461,7 +461,7 @@ function view(tag_str::AbstractString,
     end
     script_str *= "viewer.render();\n});\n</script>"
     ijulia_html = "<script type='text/javascript'>$js_jquery</script>\n"
-    if isijulia()
+    if isijulia() || isvscode()
         ijulia_html *= "<script type='text/javascript'>$js_3dmol</script>\n"
     end
     ijulia_html *= """
@@ -474,7 +474,7 @@ function view(tag_str::AbstractString,
         return "<html>\n<meta charset=\"UTF-8\">\n<head></head>\n<body>" *
                 "$ijulia_html</body></html>\n"
     end
-    if isijulia() || ispluto()
+    if isijulia() || ispluto() || isvscode()
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
