@@ -30,7 +30,7 @@ ATOM     76  CB  ALA A  11      16.528  41.416  24.561  1.00 15.72           C
 """
 viewstring(s, "pdb", style=Style("sphere"), html=true)
 
-struc = read(testfile("1AKE.pdb"), PDB)
+struc = read(testfile("1AKE.pdb"), PDBFormat)
 viewstruc(struc['A'], html=true)
 viewstruc(struc, disorderselector, style=Style("sphere"), html=true)
 viewstruc(struc['A'], surface=surface, html=true)
