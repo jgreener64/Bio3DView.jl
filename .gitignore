@@ -2,4 +2,3 @@
 *.jl.*.cov
 *.jl.mem
 .ipynb_checkpoints
-todo.txt

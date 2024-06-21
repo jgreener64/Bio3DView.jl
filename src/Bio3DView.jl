@@ -17,15 +17,8 @@ export
     viewpdb,
     viewstruc
 
-using Requires
-
 # Counter for viewers so they can be named individually
 element_count = 0
-
-function __init__()
-    @require BioStructures="de9282ab-8554-53be-b2d6-f6c222edabfc" include("biostructures.jl")
-    @require Blink="ad839575-38b3-5650-b840-f874b8c74a25" include("blink.jl")
-end
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 isvscode() = isdefined(Main, :VSCodeServer) && !isinteractive()
@@ -37,13 +30,30 @@ path_jquery = joinpath(path_lib, "jquery-3.3.1.min.js")
 js_3dmol = read(path_3dmol, String)
 js_jquery = read(path_jquery, String)
 
+# Methods defined in extensions
+"""
+    viewstruc(struc)
+    viewstruc(struc, atom_selectors...)
+
+View a structural element from BioStructures.jl.
+Displays in a popup window, or in the output cell for a notebook.
+Arguments are a `StructuralElementOrList` and zero or more functions to act as
+atom selectors - see BioStructures.jl documentation for more.
+Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
+`lines`, `cylinders`, `vtkcell`, `axes`, `cameraangle`, `height`, `width`,
+`html` and `debug`.
+"""
+function viewstruc end
+
+function viewblink end
+
 """
     Style(style_type)
     Style(style_type, options)
 
 A style for a molecular visualisation, with an optional `Dict` of options.
 Examples are `Style("cartoon")` and
-`Style("cartoon", Dict("color"=> "spectrum", "ribbon"=> true, "thickness"=> 1.0))`.
+`Style("cartoon", Dict("color" => "spectrum", "ribbon" => true, "thickness" => 1.0))`.
 """
 struct Style
     name::String
@@ -55,7 +65,7 @@ Style(s::AbstractString) = Style(s, Dict())
 # Default style for molecular visualisation, depends on file format
 function defaultstyle(format::AbstractString)
     if format == "pdb"
-        return Style("cartoon", Dict("color"=> "spectrum"))
+        return Style("cartoon", Dict("color" => "spectrum"))
     elseif format in ("sdf", "xyz", "mol2")
         return Style("stick")
     else
@@ -69,7 +79,7 @@ end
 
 A style for a molecular VDW surface visualisation, with an optional `Dict` of
 options.
-An example is `Surface(Dict("opacity"=> 0.8, "colorscheme"=> "whiteCarbon"))`.
+An example is `Surface(Dict("opacity" => 0.8, "colorscheme" => "whiteCarbon"))`.
 """
 struct Surface
     options::Dict{String, Any}
@@ -245,7 +255,7 @@ end
     viewfile(file, format)
 
 View a molecular structure from a file.
-Displays in a popup window, or in the output cell for an IJulia notebook.
+Displays in a popup window, or in the output cell for a notebook.
 Arguments are the filepath and the format ("pdb", "sdf", "xyz" or "mol2").
 If not provided, the format is guessed from the file extension, e.g.
 "myfile.xyz" is treated as being in the xyz format.
@@ -267,7 +277,7 @@ end
     viewstring(str, format)
 
 View a molecular structure contained in a string.
-Displays in a popup window, or in the output cell for an IJulia notebook.
+Displays in a popup window, or in the output cell for a notebook.
 Arguments are the molecule string and the format ("pdb", "sdf", "xyz" or
 "mol2").
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
@@ -285,7 +295,7 @@ end
     viewpdb(pdbid)
 
 View a structure from the Protein Data Bank (PDB).
-Displays in a popup window, or in the output cell for an IJulia notebook.
+Displays in a popup window, or in the output cell for a notebook.
 Argument is the four letter PDB ID, e.g. "1AKE".
 Requires an internet connection to work.
 Optional keyword arguments are `style`, `surface`, `isosurface`, `box`,
@@ -478,8 +488,8 @@ function view(tag_str::AbstractString,
         return HTML(ijulia_html)
     else
         if !isdefined(Main, :Blink)
-            throw("Cannot run the command as you do not appear to be in an IJulia " *
-                    "notebook, Blink is not loaded and html is not set to true")
+            throw("Cannot run the command as you do not appear to be in a notebook, " *
+                    "Blink is not loaded and html is not set to true")
         end
         if Sys.iswindows()
             req_path = replace(path_jquery, "\\" => "\\\\")

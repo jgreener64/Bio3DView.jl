@@ -1,12 +1,12 @@
 using Bio3DView
-using Test
 using BioStructures
+using Test
 
 testfile(path::AbstractString...) = normpath(
                     dirname(pathof(Bio3DView)), "..", "examples", path...)
 
-style = Style("sphere", Dict("colorscheme"=> "greenCarbon"))
-surface = Surface(Dict("colorscheme"=> "greenCarbon"))
+style = Style("sphere", Dict("colorscheme" => "greenCarbon"))
+surface = Surface(Dict("colorscheme" => "greenCarbon"))
 isosurface = IsoSurface(testfile("benzene.cube"), 0.01)
 box = Box([0.0, 0.0, 0.0], [6.0, 6.0, 6.0])
 lines = [Line([0.0, 1.0, 2.0], [6.0, 7.0, 7.0]), Line([-3.0, -2.0, -1.0], [3.0, 4.0, 5.0])]

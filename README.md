@@ -17,23 +17,27 @@ Contributions and bug reports are welcome.
 
 ## Installation
 
-Julia v1.0 or later is required.
+Julia 1.0 or later is required, with Julia 1.9 or later required to get the latest version.
 Install Bio3DView from the package mode of the Julia REPL (press `]`):
 
 ```
 add Bio3DView
 ```
 
-Bio3DView uses [Requires.jl](https://github.com/MikeInnes/Requires.jl) to minimise dependencies so you will also need to install either Blink, IJulia or Pluto to make this package useful, though you can generate HTML without them.
+Bio3DView uses package extensions to minimise dependencies so you will also need to install either Blink, IJulia or Pluto to make this package useful, though you can generate HTML without them.
 If you are using Blink, you will need to run `using Blink` before the Bio3DView functions work.
-To view structural objects from [BioStructures.jl](https://github.com/BioJulia/BioStructures.jl) you will need to have BioStructures.jl installed.
+To view structural objects from [BioStructures.jl](https://github.com/BioJulia/BioStructures.jl) you will need to run `using BioStructures`.
 
 ## Usage
 
 See the [tutorial notebook](http://nbviewer.jupyter.org/github/jgreener64/Bio3DView.jl/blob/master/examples/tutorial.ipynb).
 
+## Related software
+
+See also [BioMakie.jl](https://github.com/BioJulia/BioMakie.jl) and [ProtPlot.jl](https://github.com/MurrellGroup/ProtPlot.jl).
+
 ## Citation
 
 If you use Bio3DView, please cite the BioStructures paper where it is mentioned:
 
-Greener JG, Selvaraj J and Ward BJ. BioStructures.jl: read, write and manipulate macromolecular structures in Julia, *Bioinformatics* 36(14):4206-4207 (2020) - [link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btaa502/5837108?guestAccessKey=aec90643-1d43-4521-9883-4a4a669187da) - [PDF](https://github.com/BioJulia/BioStructures.jl/blob/master/paper.pdf)
+- Greener JG, Selvaraj J and Ward BJ. BioStructures.jl: read, write and manipulate macromolecular structures in Julia, *Bioinformatics* 36(14):4206-4207 (2020) - [link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btaa502/5837108?guestAccessKey=aec90643-1d43-4521-9883-4a4a669187da) - [PDF](https://github.com/BioJulia/BioStructures.jl/blob/master/paper.pdf)

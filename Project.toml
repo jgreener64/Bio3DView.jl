@@ -3,16 +3,15 @@ uuid = "99c8bb3a-9d13-5280-9740-b4880ed9c598"
 authors = ["Joe Greener <jgreener@hotmail.co.uk>"]
 version = "0.1.5"
 
-[deps]
-Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+[weakdeps]
+BioStructures = "de9282ab-8554-53be-b2d6-f6c222edabfc"
+Blink = "ad839575-38b3-5650-b840-f874b8c74a25"
+
+[extensions]
+Bio3DViewBioStructuresExt = "BioStructures"
+Bio3DViewBlinkExt = "Blink"
 
 [compat]
-Requires = "1"
-julia = "1.6"
-
-[extras]
-BioStructures = "de9282ab-8554-53be-b2d6-f6c222edabfc"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "BioStructures"]
+BioStructures = "4"
+Blink = "0.12"
+julia = "1.9"
