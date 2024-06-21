@@ -1,7 +1,7 @@
 name = "Bio3DView"
 uuid = "99c8bb3a-9d13-5280-9740-b4880ed9c598"
 authors = ["Joe Greener <jgreener@hotmail.co.uk>"]
-version = "0.1.5"
+version = "1.0.0"
 
 [weakdeps]
 BioStructures = "de9282ab-8554-53be-b2d6-f6c222edabfc"

@@ -1,5 +1,13 @@
 # Bio3DView.jl release notes
 
+## v1.0.0 - Jun 2024
+
+There are no breaking changes in this release, the v1.0.0 tag is to indicate stability.
+
+Changes:
+- Drop support for Julia versions below 1.9.
+- Package extensions, rather than Requires.jl, are used for BioStructures.jl and Blink.jl.
+
 ## v0.1.5 - Jul 2023
 
 - Fix issue with rendering in VS Code.
